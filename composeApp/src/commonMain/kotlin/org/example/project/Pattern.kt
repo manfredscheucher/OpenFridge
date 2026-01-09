@@ -1,0 +1,14 @@
+package org.example.project
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Pattern(
+    val id: Int,
+    val name: String,
+    val creator: String? = null,
+    val category: String? = null,
+    val gauge: String? = null,
+    val pdfId: Int? = null,
+    val modified: String? = null
+)

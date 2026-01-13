@@ -26,10 +26,11 @@ import kotlin.NoSuchElementException // Ensure this import is present
 sealed class Screen {
     data object Home : Screen()
     data object ArticleList : Screen()
-    data class ArticleForm(val articleId: Int) : Screen()
+    data class ArticleForm(val articleId: UInt) : Screen()
     data object LocationList : Screen()
-    data class LocationForm(val locationId: Int) : Screen()
-    data class InventoryAssignments(val locationId: Int, val locationName: String) : Screen()
+    data class LocationForm(val locationId: UInt) : Screen()
+    data class LocationAssignments(val locationId: UInt, val locationName: String) : Screen()
+    data class ArticleAssignments(val articleId: UInt, val articleName: String) : Screen()
     data object Info : Screen()
     data object HowToHelp : Screen()
     data object Statistics : Screen()
@@ -93,7 +94,8 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
             is Screen.ArticleForm -> "ArticleForm(articleId=${s.articleId})"
             is Screen.LocationList -> "LocationList"
             is Screen.LocationForm -> "LocationForm(locationId=${s.locationId})"
-            is Screen.InventoryAssignments -> "InventoryAssignments(locationId=${s.locationId}, locationName='${s.locationName}')"
+            is Screen.LocationAssignments -> "LocationAssignments(locationId=${s.locationId}, locationName='${s.locationName}')"
+            is Screen.ArticleAssignments -> "ArticleAssignments(articleId=${s.articleId}, articleName='${s.articleName}')"
             is Screen.Info -> "Info"
             is Screen.HowToHelp -> "HowToHelp"
             is Screen.Statistics -> "Statistics"
@@ -192,10 +194,10 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                     null
                                 }
                             }
-                            var articleImagesMap by remember { mutableStateOf<Map<Int, ByteArray>>(emptyMap()) }
+                            var articleImagesMap by remember { mutableStateOf<Map<UInt, ByteArray>>(emptyMap()) }
 
                             LaunchedEffect(s.articleId, existingArticle) {
-                                val imageMap = mutableMapOf<Int, ByteArray>()
+                                val imageMap = mutableMapOf<UInt, ByteArray>()
                                 existingArticle?.imageIds?.forEach { imageId ->
                                     try {
                                         withContext(Dispatchers.Default) {
@@ -285,15 +287,21 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                             val newArticleWithNewId = jsonDataManager.createNewArticle(articleToCopy.name)
                                             val newArticle = newArticleWithNewId.copy(
                                                 brand = articleToCopy.brand,
-                                                storageLocationId = articleToCopy.storageLocationId,
                                                 abbreviation = articleToCopy.abbreviation,
                                                 minimumAmount = articleToCopy.minimumAmount,
+                                                defaultExpirationDays = articleToCopy.defaultExpirationDays,
                                                 notes = articleToCopy.notes
                                             )
                                             withContext(Dispatchers.Default) { jsonDataManager.addOrUpdateArticle(newArticle) }
                                             reloadAllData()
                                             navigateTo(Screen.ArticleForm(newArticle.id))
                                         }
+                                    },
+                                    onNavigateToAssignments = {
+                                        navigateTo(Screen.ArticleAssignments(
+                                            existingArticle.id,
+                                            existingArticle.name
+                                        ))
                                     },
                                     onNavigateToLocation = { projectId -> navigateTo(Screen.LocationForm(projectId)) }
                                 )
@@ -344,10 +352,10 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                     null
                                 }
                             }
-                            var locationImagesMap by remember { mutableStateOf<Map<Int, ByteArray>>(emptyMap()) }
+                            var locationImagesMap by remember { mutableStateOf<Map<UInt, ByteArray>>(emptyMap()) }
 
                             LaunchedEffect(s.locationId, existingLocation) {
-                                val imageMap = mutableMapOf<Int, ByteArray>()
+                                val imageMap = mutableMapOf<UInt, ByteArray>()
                                 existingLocation?.imageIds?.forEach { imageId ->
                                     try {
                                         withContext(Dispatchers.Default) {
@@ -398,7 +406,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                     jsonDataManager.deleteLocation(locationIdToDelete)
                                                 }
                                                 reloadAllData()
-                                                navStack = navStack.filterNot { (it is Screen.LocationForm && it.locationId == locationIdToDelete) || (it is Screen.InventoryAssignments && it.locationId == locationIdToDelete) }
+                                                navStack = navStack.filterNot { (it is Screen.LocationForm && it.locationId == locationIdToDelete) || (it is Screen.LocationAssignments && it.locationId == locationIdToDelete) }
                                             } catch (e: Exception) {
                                                 Logger.log(LogLevel.ERROR, "Failed to delete project with id $locationIdToDelete: ${e.message}", e)
                                                 errorDialogMessage = "Failed to delete project: ${e.message}"
@@ -431,7 +439,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                         }
                                     },
                                     onNavigateToAssignments = {
-                                        navigateTo(Screen.InventoryAssignments(
+                                        navigateTo(Screen.LocationAssignments(
                                             existingLocation.id,
                                             existingLocation.name
                                         ))
@@ -443,22 +451,44 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                             }
                         }
 
-                        is Screen.InventoryAssignments -> {
-                            val initialAssignmentsForLocation = assignments
-                                .filter { it.locationId == s.locationId }
-                                .associate { it.articleId to it.amount }
+                        is Screen.LocationAssignments -> {
+                            val initialAssignmentsForLocation = assignments.filter { it.locationId == s.locationId }
 
                             LocationAssignmentsScreen(
                                 locationName = s.locationName,
+                                locationId = s.locationId,
                                 allArticles = articles,
                                 initialAssignments = initialAssignmentsForLocation,
+                                onCreateNewAssignment = { articleId, locationId ->
+                                    jsonDataManager.createNewAssignment(articleId, locationId)
+                                },
                                 onSave = { updatedAssignments ->
                                     scope.launch {
                                         withContext(Dispatchers.Default) {
-                                            jsonDataManager.setLocationInventory(
-                                                s.locationId,
-                                                updatedAssignments
-                                            )
+                                            jsonDataManager.setLocationAssignments(s.locationId, updatedAssignments)
+                                        }
+                                        reloadAllData()
+                                    }
+                                },
+                                onBack = { navigateBack() }
+                            )
+                        }
+
+                        is Screen.ArticleAssignments -> {
+                            val initialAssignmentsForArticle = assignments.filter { it.articleId == s.articleId }
+
+                            ArticleAssignmentsScreen(
+                                articleName = s.articleName,
+                                articleId = s.articleId,
+                                allLocations = locations,
+                                initialAssignments = initialAssignmentsForArticle,
+                                onCreateNewAssignment = { articleId, locationId ->
+                                    jsonDataManager.createNewAssignment(articleId, locationId)
+                                },
+                                onSave = { updatedAssignments ->
+                                    scope.launch {
+                                        withContext(Dispatchers.Default) {
+                                            jsonDataManager.setArticleAssignments(s.articleId, updatedAssignments)
                                         }
                                         reloadAllData()
                                     }
@@ -490,7 +520,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 currentLocale = settings.language,
                                 currentLogLevel = settings.logLevel,
                                 backupOldFolderOnImport = settings.backupOldFolderOnImport,
-                                defaultExpirationDays = settings.defaultExpirationDays,
                                 fileHandler = fileHandler,
                                 onBack = { navigateBack() },
                                 onExportZip = {
@@ -561,15 +590,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onBackupOldFolderOnImportChange = { newBackupOldFolderOnImport ->
                                     scope.launch {
                                         val newSettings = settings.copy(backupOldFolderOnImport = newBackupOldFolderOnImport)
-                                        withContext(Dispatchers.Default) {
-                                            settingsManager.saveSettings(newSettings)
-                                        }
-                                        settings = newSettings
-                                    }
-                                },
-                                onDefaultExpirationDaysChange = { newDefaultExpirationDays ->
-                                    scope.launch {
-                                        val newSettings = settings.copy(defaultExpirationDays = newDefaultExpirationDays)
                                         withContext(Dispatchers.Default) {
                                             settingsManager.saveSettings(newSettings)
                                         }

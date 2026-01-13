@@ -57,7 +57,6 @@
     <string name="article_label_blend">Zusammensetzung</string>
     <string name="article_label_dye_lot">Farbpartie</string>
     <string name="article_label_brand">Marke</string>
-    <string name="article_label_storage_location">Bevorzugter Lagerort</string>
     <string name="article_label_amount">Menge (g)</string>
     <string name="article_label_weight_per_skein">g / Knäuel</string>
     <string name="article_label_meterage_per_skein">m / Knäuel</string>
@@ -72,6 +71,12 @@
     <string name="article_new_default_name">Artikel#%1$d</string>
     <string name="form_unsaved_changes_title">Ungespeicherte Änderungen</string>
     <string name="form_unsaved_changes_message">Möchten Sie die Änderungen speichern?</string>
+    <string name="form_delete_article_title">Artikel löschen</string>
+    <string name="form_delete_article_message">Möchten Sie diesen Artikel wirklich löschen?</string>
+    <string name="form_delete_location_title">Lagerort löschen</string>
+    <string name="form_delete_location_message">Möchten Sie diesen Lagerort wirklich löschen?</string>
+    <string name="form_delete_assignment_title">Zuweisung löschen</string>
+    <string name="form_delete_assignment_message">Möchten Sie diese Zuweisung wirklich löschen?</string>
 
     <!-- Location form -->
     <string name="location_form_new">Neuer Lagerort</string>
@@ -83,7 +88,7 @@
     <string name="location_label_end_date">Enddatum</string>
     <string name="date_format_hint_project">Datum (JJJJ, JJJJ-MM, JJJJ-MM-TT)</string>
     <string name="location_label_notes">Notizen</string>
-    <string name="location_form_button_assignments">Artikel zuordnen</string>
+    <string name="location_form_button_assignments">Zuweisungen verwalten</string>
     <string name="location_form_button_export_pdf">PDF Export</string>
     <string name="delete_location_restricted_title">Löschen nicht möglich</string>
     <string name="delete_location_restricted_message">Löschen ist nur möglich, wenn keine Artikel zugeordnet sind. Entfernen Sie die zugewiesenen Artikel um fortzufahren.</string>
@@ -131,7 +136,7 @@
     <string name="assignment_used_with_meterage">Verbraucht: %1$d g (%2$d m)</string>
     <string name="assignment_used_with_yardage">Verbraucht: %1$d g (%2$d yd)</string>
     <string name="assignment_projects_title">Lagerorte</string>
-    <string name="assignment_locations_title">Zugewiesen an Lagerorte</string>
+    <string name="assignment_locations_title">Zuweisungen</string>
     <string name="assignment_articles_title">Zugeordnete Artikel</string>
     <string name="assignment_none">Keine Zuweisungen</string>
 

@@ -22,38 +22,39 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun ArticleFormScreen(
     initial: Article,
-    initialImages: Map<Int, ByteArray>,
+    initialImages: Map<UInt, ByteArray>,
     assignmentsForArticle: List<Assignment>,
     allLocations: List<Location>,
-    locationById: (Int) -> Location?,
+    locationById: (UInt) -> Location?,
     imageManager: ImageManager,
     settings: Settings,
     onBack: () -> Unit,
-    onDelete: (Int) -> Unit,
-    onSave: (Article, Map<Int, ByteArray>) -> Unit,
+    onDelete: (UInt) -> Unit,
+    onSave: (Article, Map<UInt, ByteArray>) -> Unit,
     onAddColor: (Article) -> Unit,
-    onNavigateToLocation: (Int) -> Unit
+    onNavigateToAssignments: () -> Unit,
+    onNavigateToLocation: (UInt) -> Unit
 ) {
-    val isNewArticle = initial.id == -1
+    val isNewArticle = initial.id == 0u
 
     var name by remember { mutableStateOf(initial.name) }
     var brand by remember { mutableStateOf(initial.brand ?: "") }
-    var storageLocationId by remember { mutableStateOf(initial.storageLocationId) }
     var abbreviation by remember { mutableStateOf(initial.abbreviation ?: "") }
     var minimumAmount by remember { mutableStateOf(initial.minimumAmount.toString()) }
-    var expiryDate by remember { mutableStateOf(initial.expiryDate ?: "") }
+    var defaultExpirationDays by remember { mutableStateOf(initial.defaultExpirationDays?.toString() ?: "") }
     var notes by remember { mutableStateOf(initial.notes ?: "") }
     val modifiedState by remember { mutableStateOf(initial.modified ?: getCurrentTimestamp()) }
 
-    val images = remember { mutableStateMapOf<Int, ByteArray>() }
+    val images = remember { mutableStateMapOf<UInt, ByteArray>() }
     LaunchedEffect(initialImages) {
         images.clear()
         images.putAll(initialImages)
     }
-    var nextTempId by remember(initial.id) { mutableStateOf((initial.imageIds.maxOrNull() ?: 0) + 1) }
+    var nextTempId by remember(initial.id) { mutableStateOf((initial.imageIds.maxOrNull() ?: 0u) + 1u) }
     var selectedImageId by remember(initial.id) { mutableStateOf(initial.imageIds.firstOrNull()) }
 
     var showUnsavedDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     var onConfirmUnsaved by remember { mutableStateOf<(() -> Unit)?>(null) }
     val scope = rememberCoroutineScope()
 
@@ -79,10 +80,9 @@ fun ArticleFormScreen(
 
     val hasChanges = name != initial.name ||
                      brand != (initial.brand ?: "") ||
-                     storageLocationId != initial.storageLocationId ||
                      abbreviation != (initial.abbreviation ?: "") ||
                      minimumAmount != initial.minimumAmount.toString() ||
-                     expiryDate != (initial.expiryDate ?: "") ||
+                     defaultExpirationDays != (initial.defaultExpirationDays?.toString() ?: "") ||
                      notes != (initial.notes ?: "") ||
                      images.keys.toSet() != initial.imageIds.toSet()
 
@@ -90,10 +90,9 @@ fun ArticleFormScreen(
         val updatedArticle = initial.copy(
             name = name,
             brand = brand.takeIf { it.isNotBlank() },
-            storageLocationId = storageLocationId,
             abbreviation = abbreviation.takeIf { it.isNotBlank() },
-            minimumAmount = minimumAmount.toIntOrNull() ?: 0,
-            expiryDate = expiryDate.takeIf { it.isNotBlank() },
+            minimumAmount = minimumAmount.toUIntOrNull() ?: 0u,
+            defaultExpirationDays = defaultExpirationDays.toUIntOrNull(),
             notes = notes.takeIf { it.isNotBlank() },
             modified = modifiedState,
             imageIds = images.keys.toList()
@@ -127,7 +126,7 @@ fun ArticleFormScreen(
                 },
                 actions = {
                     if (!isNewArticle) {
-                        TextButton(onClick = { onDelete(initial.id) }) {
+                        TextButton(onClick = { showDeleteDialog = true }) {
                             Text(stringResource(Res.string.common_delete))
                         }
                     }
@@ -250,47 +249,6 @@ fun ArticleFormScreen(
             }
 
             item {
-                var expanded by remember { mutableStateOf(false) }
-                val selectedLocation = storageLocationId?.let { id -> locationById(id) }
-
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = selectedLocation?.name ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(Res.string.article_label_storage_location)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("None") },
-                            onClick = {
-                                storageLocationId = null
-                                expanded = false
-                            }
-                        )
-                        allLocations.forEach { location ->
-                            DropdownMenuItem(
-                                text = { Text(location.name) },
-                                onClick = {
-                                    storageLocationId = location.id
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-            item {
                 OutlinedTextField(
                     value = minimumAmount,
                     onValueChange = { minimumAmount = it.filter { c -> c.isDigit() } },
@@ -302,9 +260,9 @@ fun ArticleFormScreen(
 
             item {
                 OutlinedTextField(
-                    value = expiryDate,
-                    onValueChange = { expiryDate = it },
-                    label = { Text("Expiry Date (YYYY-MM-DD)") },
+                    value = defaultExpirationDays,
+                    onValueChange = { defaultExpirationDays = it.filter { c -> c.isDigit() } },
+                    label = { Text("Default Expiration Days") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -377,6 +335,15 @@ fun ArticleFormScreen(
                     }
                 }
             }
+
+            item {
+                Button(
+                    onClick = onNavigateToAssignments,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Manage Assignments")
+                }
+            }
         }
     }
 
@@ -400,6 +367,27 @@ fun ArticleFormScreen(
                     onConfirmUnsaved?.invoke()
                 }) {
                     Text(stringResource(Res.string.common_no))
+                }
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(stringResource(Res.string.form_delete_article_title)) },
+            text = { Text(stringResource(Res.string.form_delete_article_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    onDelete(initial.id)
+                }) {
+                    Text(stringResource(Res.string.common_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(Res.string.common_cancel))
                 }
             }
         )

@@ -24,7 +24,7 @@
     <string name="article_list_filter">Search</string>
 
     <!-- Project list -->
-    <string name="location_list_title">Storage Locations</string>
+    <string name="location_list_title">Locations</string>
     <string name="location_list_empty">No locations. Tap + to add a new one.</string>
     <string name="location_list_filter">Search</string>
     <string name="item_label_name">Name: %1$s</string>
@@ -53,7 +53,6 @@
     <string name="article_label_blend">Blend</string>
     <string name="article_label_dye_lot">Dye lot</string>
     <string name="article_label_brand">Brand</string>
-    <string name="article_label_storage_location">Preferred Storage Location</string>
     <string name="article_label_amount">Amount (g)</string>
     <string name="article_label_weight_per_skein">g / skein</string>
     <string name="article_label_meterage_per_skein">m / skein</string>
@@ -68,6 +67,12 @@
     <string name="article_new_default_name">Article#%1$d</string>
     <string name="form_unsaved_changes_title">Unsaved Changes</string>
     <string name="form_unsaved_changes_message">Do you want to save the changes?</string>
+    <string name="form_delete_article_title">Delete Article</string>
+    <string name="form_delete_article_message">Are you sure you want to delete this article?</string>
+    <string name="form_delete_location_title">Delete Location</string>
+    <string name="form_delete_location_message">Are you sure you want to delete this location?</string>
+    <string name="form_delete_assignment_title">Delete Assignment</string>
+    <string name="form_delete_assignment_message">Are you sure you want to delete this assignment?</string>
 
     <!-- Project form -->
     <string name="location_form_new">New location</string>
@@ -79,7 +84,7 @@
     <string name="location_label_end_date">End date</string>
     <string name="date_format_hint_project">Date (YYYY, YYYY-MM, YYYY-MM-DD)</string>
     <string name="location_label_notes">Notes</string>
-    <string name="location_form_button_assignments">Assign articles</string>
+    <string name="location_form_button_assignments">Manage Assignments</string>
     <string name="location_form_button_export_pdf">PDF Export</string>
     <string name="delete_location_restricted_title">Deletion Not Possible</string>
     <string name="delete_location_restricted_message">Deletion is only possible if no articles are assigned. Remove assigned articles to proceed with deletion.</string>
@@ -105,7 +110,7 @@
     <string name="assignment_amount_label">Amount (g)</string>
     <string name="assignment_available">Available: %1$d g</string>
     <string name="assignment_projects_title">Locations</string>
-    <string name="assignment_locations_title">Assigned to Locations</string>
+    <string name="assignment_locations_title">Assignments</string>
     <string name="assignment_articles_title">Assigned Articles</string>
     <string name="assignment_none">No assignments</string>
 
@@ -119,7 +124,7 @@
     <!-- Info Screen -->
     <string name="info_screen_title">Info</string>
     <string name="info_how_to_help">How to Help</string>
-    <string name="info_description">OpenFridge is an open-source app to manage your inventory and storage locations. It provides an overview, statistics, and progress tracking. The app is still in development – feedback is very welcome!</string>
+    <string name="info_description">OpenFridge is an open-source app to manage your inventory and locations. It provides an overview, statistics, and progress tracking. The app is still in development – feedback is very welcome!</string>
     <string name="info_github_button">Visit GitHub</string>
     <string name="info_copyright_notice">The source code of this app is released under the MIT License.
 © 2025 Manfred Scheucher and Helena Bergold

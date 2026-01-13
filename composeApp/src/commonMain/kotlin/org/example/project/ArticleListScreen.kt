@@ -31,7 +31,7 @@ fun ArticleListScreen(
     assignments: List<Assignment>,
     settings: Settings,
     onAddClick: () -> Unit,
-    onOpen: (Int) -> Unit,
+    onOpen: (UInt) -> Unit,
     onBack: () -> Unit,
     onSettingsChange: (Settings) -> Unit
 ) {
@@ -41,8 +41,6 @@ fun ArticleListScreen(
 
     var filter by remember { mutableStateOf("") }
     var showMissingOnly by remember { mutableStateOf(false) }
-    var showExpiredOnly by remember { mutableStateOf(false) }
-    var expiryThresholdDays by remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -102,7 +100,6 @@ fun ArticleListScreen(
                     }
                 }
 
-                val now = LocalDate.parse(getCurrentTimestamp().substring(0, 10))
                 val filteredArticles = articles.filter { article ->
                     // Filter by search term
                     val matchesSearch = if (filter.isNotBlank()) {
@@ -113,31 +110,13 @@ fun ArticleListScreen(
 
                     // Filter by missing (current amount < minimum amount)
                     val matchesMissing = if (showMissingOnly) {
-                        val currentAmount = articleCurrentAmounts[article.id] ?: 0
+                        val currentAmount = articleCurrentAmounts[article.id] ?: 0u
                         currentAmount < article.minimumAmount
                     } else {
                         true
                     }
 
-                    // Filter by expired
-                    val matchesExpired = if (showExpiredOnly) {
-                        val expiryDateStr = article.expiryDate
-                        if (expiryDateStr != null) {
-                            try {
-                                val expiryDate = LocalDate.parse(expiryDateStr)
-                                val thresholdDate = now.plus(expiryThresholdDays, DateTimeUnit.DAY)
-                                expiryDate <= thresholdDate
-                            } catch (e: Exception) {
-                                false
-                            }
-                        } else {
-                            false
-                        }
-                    } else {
-                        true
-                    }
-
-                    matchesSearch && matchesMissing && matchesExpired
+                    matchesSearch && matchesMissing
                 }.sortedByDescending { it.modified ?: "" }
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -155,60 +134,6 @@ fun ArticleListScreen(
                         )
                     }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = showExpiredOnly,
-                            onCheckedChange = { showExpiredOnly = it }
-                        )
-                        Text(
-                            text = stringResource(Res.string.article_list_show_expired),
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                        Spacer(Modifier.weight(1f))
-
-                        var expanded by remember { mutableStateOf(false) }
-                        val options = listOf(
-                            0 to stringResource(Res.string.article_list_expiry_today),
-                            7 to stringResource(Res.string.article_list_expiry_1_week),
-                            14 to stringResource(Res.string.article_list_expiry_2_weeks),
-                            21 to stringResource(Res.string.article_list_expiry_3_weeks),
-                            28 to stringResource(Res.string.article_list_expiry_4_weeks)
-                        )
-
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = it },
-                            modifier = Modifier.width(200.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = options.find { it.first == expiryThresholdDays }?.second ?: "",
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                modifier = Modifier.menuAnchor(),
-                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                                textStyle = MaterialTheme.typography.bodySmall,
-                                singleLine = true
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                options.forEach { (days, label) ->
-                                    DropdownMenuItem(
-                                        text = { Text(label, style = MaterialTheme.typography.bodySmall) },
-                                        onClick = {
-                                            expiryThresholdDays = days
-                                            expanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
                 }
 
                 OutlinedTextField(
@@ -233,7 +158,7 @@ fun ArticleListScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(filteredArticles) { article ->
-                        val currentAmount = articleCurrentAmounts[article.id] ?: 0
+                        val currentAmount = articleCurrentAmounts[article.id] ?: 0u
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = { onOpen(article.id) },
@@ -272,24 +197,12 @@ fun ArticleListScreen(
                                     article.brand?.let {
                                         Text(it, style = MaterialTheme.typography.bodyMedium)
                                     }
-                                    article.storageLocationId?.let { locationId ->
-                                        val location = locations.firstOrNull { it.id == locationId }
-                                        if (location != null) {
-                                            Text("Storage: ${location.name}", style = MaterialTheme.typography.bodySmall)
-                                        }
-                                    }
                                     val isMissing = currentAmount < article.minimumAmount
                                     Text(
-                                        "Amount: $currentAmount / ${article.minimumAmount}${if (isMissing && article.minimumAmount > 0) " ⚠️" else ""}",
+                                        "Amount: $currentAmount / ${article.minimumAmount}${if (isMissing && article.minimumAmount > 0u) " ⚠️" else ""}",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = if (isMissing && article.minimumAmount > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                        color = if (isMissing && article.minimumAmount > 0u) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                                     )
-                                    article.expiryDate?.let {
-                                        Text(
-                                            stringResource(Res.string.article_item_label_expires, it),
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
                                 }
                             }
                         }

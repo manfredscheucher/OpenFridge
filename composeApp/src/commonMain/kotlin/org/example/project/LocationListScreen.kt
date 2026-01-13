@@ -60,7 +60,7 @@ fun LocationListScreen(
     imageManager: ImageManager,
     settings: Settings,
     onAddClick: () -> Unit,
-    onOpen: (Int) -> Unit,
+    onOpen: (UInt) -> Unit,
     onBack: () -> Unit,
     onSettingsChange: (Settings) -> Unit
 ) {

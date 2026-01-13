@@ -107,13 +107,13 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
     }
 
     // Article management functions
-    fun getArticleById(id: Int): Article? = data.articles.firstOrNull { it.id == id }
+    fun getArticleById(id: UInt): Article? = data.articles.firstOrNull { it.id == id }
 
     fun createNewArticle(defaultName: String): Article {
         val existingIds = data.articles.map { it.id }.toSet()
-        var newId: Int
+        var newId: UInt
         do {
-            newId = Random.nextInt(1_000_000, 10_000_000)
+            newId = Random.nextInt().toUInt()
         } while (existingIds.contains(newId))
         val articleName = defaultName.replace("%1\$d", newId.toString())
         return Article(
@@ -133,20 +133,20 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
         save()
     }
 
-    suspend fun deleteArticle(id: Int) {
+    suspend fun deleteArticle(id: UInt) {
         data.articles.removeAll { it.id == id }
         data.assignments.removeAll { it.articleId == id }
         save()
     }
 
     // Location management functions
-    fun getLocationById(id: Int): Location? = data.locations.firstOrNull { it.id == id }
+    fun getLocationById(id: UInt): Location? = data.locations.firstOrNull { it.id == id }
 
     fun createNewLocation(defaultName: String): Location {
         val existingIds = data.locations.map { it.id }.toSet()
-        var newId: Int
+        var newId: UInt
         do {
-            newId = Random.nextInt(1_000_000, 10_000_000)
+            newId = Random.nextInt().toUInt()
         } while (existingIds.contains(newId))
         val locationName = defaultName.replace("%1\$d", newId.toString())
         return Location(
@@ -165,21 +165,56 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
         save()
     }
 
-    suspend fun deleteLocation(id: Int) {
+    suspend fun deleteLocation(id: UInt) {
         data.locations.removeAll { it.id == id }
         data.assignments.removeAll { it.locationId == id }
         save()
     }
 
     // Assignment/Inventory management functions
-    suspend fun setLocationInventory(locationId: Int, assignments: Map<Int, Int>) {
+    fun createNewAssignment(articleId: UInt, locationId: UInt): Assignment {
+        val existingIds = data.assignments.map { it.id }.toSet()
+        var newId: UInt
+        do {
+            newId = Random.nextInt().toUInt()
+        } while (existingIds.contains(newId))
+
+        val article = getArticleById(articleId)
+        val today = getCurrentDateString()
+        val expirationDate = article?.defaultExpirationDays?.let { days ->
+            if (days > 0u) addDaysToDate(today, days) else null
+        }
+
+        return Assignment(
+            id = newId,
+            articleId = articleId,
+            locationId = locationId,
+            amount = 0u,
+            addedDate = today,
+            expirationDate = expirationDate
+        )
+    }
+
+    suspend fun setLocationAssignments(locationId: UInt, assignments: List<Assignment>) {
         // Remove existing assignments for this location
         data.assignments.removeAll { it.locationId == locationId }
 
         // Add new assignments
-        for ((articleId, amount) in assignments) {
-            if (amount > 0) {
-                val assignment = Assignment(articleId = articleId, locationId = locationId, amount = amount)
+        for (assignment in assignments) {
+            if (assignment.amount > 0u) {
+                data.assignments.add(assignment)
+            }
+        }
+        save()
+    }
+
+    suspend fun setArticleAssignments(articleId: UInt, assignments: List<Assignment>) {
+        // Remove existing assignments for this article
+        data.assignments.removeAll { it.articleId == articleId }
+
+        // Add new assignments
+        for (assignment in assignments) {
+            if (assignment.amount > 0u) {
                 data.assignments.add(assignment)
             }
         }

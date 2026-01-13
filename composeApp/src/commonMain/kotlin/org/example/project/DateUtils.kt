@@ -1,9 +1,7 @@
 
 package org.example.project
 
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import kotlin.time.ExperimentalTime
 
 
@@ -40,4 +38,15 @@ fun normalizeDateString(input: String): String? {
         yyyyMmDdRegex.matches(trimmed) -> trimmed
         else -> null
     }
+}
+
+fun getCurrentDateString(): String {
+    val timestamp = getCurrentTimestamp()
+    return timestamp.substring(0, 10)
+}
+
+fun addDaysToDate(dateString: String, days: UInt): String {
+    val date = LocalDate.parse(dateString)
+    val newDate = date.plus(DatePeriod(days = days.toInt()))
+    return newDate.toString()
 }

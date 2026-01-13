@@ -66,7 +66,6 @@ fun SettingsScreen(
     currentLocale: String,
     currentLogLevel: LogLevel,
     backupOldFolderOnImport: Boolean,
-    defaultExpirationDays: Int,
     fileHandler: FileHandler,
     onBack: () -> Unit,
     onExportZip: () -> Unit,
@@ -74,8 +73,7 @@ fun SettingsScreen(
     onImportZip: (Any) -> Unit,
     onLocaleChange: (String) -> Unit,
     onLogLevelChange: (LogLevel) -> Unit,
-    onBackupOldFolderOnImportChange: (Boolean) -> Unit,
-    onDefaultExpirationDaysChange: (Int) -> Unit
+    onBackupOldFolderOnImportChange: (Boolean) -> Unit
 ) {
     var showJsonFilePicker by remember { mutableStateOf(false) }
     var showZipFilePicker by remember { mutableStateOf(false) }
@@ -229,18 +227,6 @@ fun SettingsScreen(
                     Checkbox(checked = backupOldFolderOnImport, onCheckedChange = onBackupOldFolderOnImportChange)
                     Text(stringResource(Res.string.backup_old_folder_on_import))
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = defaultExpirationDays.toString(),
-                    onValueChange = { newValue ->
-                        newValue.toIntOrNull()?.let { onDefaultExpirationDaysChange(it) }
-                    },
-                    label = { Text("Default Expiration (days)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
 
                 if (showImportJsonConfirmDialog) {
                     AlertDialog(

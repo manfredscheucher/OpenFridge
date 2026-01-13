@@ -22,30 +22,31 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun LocationFormScreen(
     initial: Location,
-    initialImages: Map<Int, ByteArray>,
+    initialImages: Map<UInt, ByteArray>,
     assignmentsForLocation: List<Assignment>,
-    articleById: (Int) -> Article?,
+    articleById: (UInt) -> Article?,
     imageManager: ImageManager,
     onBack: () -> Unit,
-    onDelete: (Int) -> Unit,
-    onSave: (Location, Map<Int, ByteArray>) -> Unit,
+    onDelete: (UInt) -> Unit,
+    onSave: (Location, Map<UInt, ByteArray>) -> Unit,
     onNavigateToAssignments: () -> Unit,
-    onNavigateToArticle: (Int) -> Unit
+    onNavigateToArticle: (UInt) -> Unit
 ) {
-    val isNewLocation = initial.id == -1
+    val isNewLocation = initial.id == 0u
 
     var name by remember { mutableStateOf(initial.name) }
     var notes by remember { mutableStateOf(initial.notes ?: "") }
     var showDeleteRestrictionDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     var showUnsavedDialog by remember { mutableStateOf(false) }
     var onConfirmUnsaved by remember { mutableStateOf<(() -> Unit)?>(null) }
 
-    val images = remember { mutableStateMapOf<Int, ByteArray>() }
+    val images = remember { mutableStateMapOf<UInt, ByteArray>() }
     LaunchedEffect(initialImages) {
         images.clear()
         images.putAll(initialImages)
     }
-    var nextTempId by remember(initial.id) { mutableStateOf((initial.imageIds.maxOrNull() ?: 0) + 1) }
+    var nextTempId by remember(initial.id) { mutableStateOf((initial.imageIds.maxOrNull() ?: 0u) + 1u) }
     var selectedImageId by remember(initial.id) { mutableStateOf(initial.imageIds.firstOrNull()) }
 
     val scope = rememberCoroutineScope()
@@ -113,7 +114,7 @@ fun LocationFormScreen(
                             if (assignmentsForLocation.isNotEmpty()) {
                                 showDeleteRestrictionDialog = true
                             } else {
-                                onDelete(initial.id)
+                                showDeleteDialog = true
                             }
                         }) {
                             Text(stringResource(Res.string.common_delete))
@@ -227,15 +228,6 @@ fun LocationFormScreen(
             }
 
             item {
-                Button(
-                    onClick = onNavigateToAssignments,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(Res.string.location_form_button_assignments))
-                }
-            }
-
-            item {
                 Text(stringResource(Res.string.assignment_articles_title), style = MaterialTheme.typography.titleMedium)
             }
 
@@ -293,6 +285,15 @@ fun LocationFormScreen(
                     }
                 }
             }
+
+            item {
+                Button(
+                    onClick = onNavigateToAssignments,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(Res.string.location_form_button_assignments))
+                }
+            }
         }
     }
 
@@ -323,6 +324,27 @@ fun LocationFormScreen(
 
     if (showDeleteRestrictionDialog) {
         DeleteRestrictionDialog(onDismiss = { showDeleteRestrictionDialog = false })
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(stringResource(Res.string.form_delete_location_title)) },
+            text = { Text(stringResource(Res.string.form_delete_location_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    onDelete(initial.id)
+                }) {
+                    Text(stringResource(Res.string.common_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(Res.string.common_cancel))
+                }
+            }
+        )
     }
 }
 

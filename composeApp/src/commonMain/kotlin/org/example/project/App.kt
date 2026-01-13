@@ -313,6 +313,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 stringResource(Res.string.location_new_default_name)
                             LocationListScreen(
                                 locations = locations,
+                                assignments = assignments,
                                 imageManager = imageManager,
                                 settings = settings,
                                 onAddClick = {

@@ -98,11 +98,11 @@ fun ArticleListScreen(
                     Text(stringResource(Res.string.article_list_empty))
                 }
             } else {
-                // Calculate current amount and earliest expiration for each article
+                // Calculate current amount and earliest expiration for each article (only non-removed)
                 val articleCurrentAmounts = remember(assignments) {
                     articles.associate { article ->
                         val totalAssigned = assignments
-                            .filter { it.articleId == article.id }
+                            .filter { it.articleId == article.id && it.removedDate == null }
                             .sumOf { it.amount }
                         article.id to totalAssigned
                     }
@@ -111,14 +111,14 @@ fun ArticleListScreen(
                 val articleEarliestExpiration = remember(assignments) {
                     articles.associate { article ->
                         val earliestExpiration = assignments
-                            .filter { it.articleId == article.id && it.expirationDate != null }
+                            .filter { it.articleId == article.id && it.removedDate == null && it.expirationDate != null }
                             .mapNotNull { it.expirationDate }
                             .minOrNull()
                         article.id to earliestExpiration
                     }
                 }
 
-                // Calculate which articles have expiring assignments
+                // Calculate which articles have expiring assignments (only non-removed)
                 val articlesWithExpiringAssignments = remember(assignments, expiryThresholdDays) {
                     val today = getCurrentDateString()
                     val thresholdDate = addDaysToDate(today, expiryThresholdDays)
@@ -126,6 +126,7 @@ fun ArticleListScreen(
                     articles.filter { article ->
                         assignments.any { assignment ->
                             assignment.articleId == article.id &&
+                            assignment.removedDate == null &&
                             assignment.expirationDate != null &&
                             assignment.expirationDate!! <= thresholdDate
                         }
@@ -331,20 +332,26 @@ fun ArticleListScreen(
                                     }
                                     val isMissing = currentAmount < article.minimumAmount
                                     val earliestExpiration = articleEarliestExpiration[article.id]
+                                    val today = getCurrentDateString()
+                                    val isExpired = earliestExpiration != null && earliestExpiration < today
+
                                     val amountText = if (earliestExpiration != null) {
                                         "Amount: $currentAmount (until $earliestExpiration)"
                                     } else {
                                         "Amount: $currentAmount"
                                     }
-                                    val warningText = if (isMissing && article.minimumAmount > 0u) {
-                                        " ⚠️ (minimum amount: ${article.minimumAmount})"
-                                    } else {
-                                        ""
+
+                                    val warnings = buildList {
+                                        if (isExpired) add("⚠️ EXPIRED")
+                                        if (isMissing && article.minimumAmount > 0u) add("⚠️ (minimum amount: ${article.minimumAmount})")
                                     }
+                                    val warningText = if (warnings.isNotEmpty()) " ${warnings.joinToString(" ")}" else ""
+
+                                    val hasWarning = isMissing || isExpired
                                     Text(
                                         amountText + warningText,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = if (isMissing && article.minimumAmount > 0u) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                        color = if (hasWarning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }

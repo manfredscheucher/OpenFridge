@@ -42,8 +42,19 @@ fun ArticleFormScreen(
     var abbreviation by remember { mutableStateOf(initial.abbreviation ?: "") }
     var minimumAmount by remember { mutableStateOf(initial.minimumAmount.toString()) }
     var defaultExpirationDays by remember { mutableStateOf(initial.defaultExpirationDays?.toString() ?: "") }
+    var barcodes by remember { mutableStateOf(initial.barcodes ?: "") }
     var notes by remember { mutableStateOf(initial.notes ?: "") }
     val modifiedState by remember { mutableStateOf(initial.modified ?: getCurrentTimestamp()) }
+
+    val barcodeScannerLauncher = rememberBarcodeScannerLauncher { barcode ->
+        if (barcode != null) {
+            barcodes = if (barcodes.isBlank()) {
+                barcode
+            } else {
+                "$barcodes, $barcode"
+            }
+        }
+    }
 
     val images = remember { mutableStateMapOf<UInt, ByteArray>() }
     LaunchedEffect(initialImages) {
@@ -56,7 +67,17 @@ fun ArticleFormScreen(
     var showUnsavedDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var onConfirmUnsaved by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showRemoved by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    // Filter assignments based on showRemoved toggle
+    val filteredAssignments = remember(assignmentsForArticle, showRemoved) {
+        if (showRemoved) {
+            assignmentsForArticle
+        } else {
+            assignmentsForArticle.filter { it.removedDate == null }
+        }
+    }
 
     val imagePicker = rememberImagePickerLauncher { newImageBytes ->
         newImageBytes.forEach { bytes ->
@@ -83,6 +104,7 @@ fun ArticleFormScreen(
                      abbreviation != (initial.abbreviation ?: "") ||
                      minimumAmount != initial.minimumAmount.toString() ||
                      defaultExpirationDays != (initial.defaultExpirationDays?.toString() ?: "") ||
+                     barcodes != (initial.barcodes ?: "") ||
                      notes != (initial.notes ?: "") ||
                      images.keys.toSet() != initial.imageIds.toSet()
 
@@ -93,6 +115,7 @@ fun ArticleFormScreen(
             abbreviation = abbreviation.takeIf { it.isNotBlank() },
             minimumAmount = minimumAmount.toUIntOrNull() ?: 0u,
             defaultExpirationDays = defaultExpirationDays.toUIntOrNull(),
+            barcodes = barcodes.takeIf { it.isNotBlank() },
             notes = notes.takeIf { it.isNotBlank() },
             modified = modifiedState,
             imageIds = images.keys.toList()
@@ -269,6 +292,31 @@ fun ArticleFormScreen(
             }
 
             item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = barcodes,
+                        onValueChange = { barcodes = it },
+                        label = { Text("Barcodes") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    if (barcodeScannerLauncher != null) {
+                        Button(
+                            onClick = { barcodeScannerLauncher.launch() },
+                            modifier = Modifier.height(56.dp)
+                        ) {
+                            Text("Scan")
+                        }
+                    }
+                }
+            }
+
+            item {
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
@@ -281,7 +329,25 @@ fun ArticleFormScreen(
                 Text(stringResource(Res.string.assignment_locations_title), style = MaterialTheme.typography.titleMedium)
             }
 
-            if (assignmentsForArticle.isEmpty()) {
+            if (assignmentsForArticle.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = showRemoved,
+                            onCheckedChange = { showRemoved = it }
+                        )
+                        Text(
+                            text = "Show Removed",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+
+            if (filteredAssignments.isEmpty()) {
                 item {
                     Text(
                         stringResource(Res.string.assignment_none),
@@ -290,7 +356,7 @@ fun ArticleFormScreen(
                     )
                 }
             } else {
-                items(assignmentsForArticle) { assignment ->
+                items(filteredAssignments) { assignment ->
                     val location = locationById(assignment.locationId)
                     if (location != null) {
                         Card(

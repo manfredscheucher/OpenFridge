@@ -40,6 +40,16 @@ fun LocationFormScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showUnsavedDialog by remember { mutableStateOf(false) }
     var onConfirmUnsaved by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showRemoved by remember { mutableStateOf(false) }
+
+    // Filter assignments based on showRemoved toggle
+    val filteredAssignments = remember(assignmentsForLocation, showRemoved) {
+        if (showRemoved) {
+            assignmentsForLocation
+        } else {
+            assignmentsForLocation.filter { it.removedDate == null }
+        }
+    }
 
     val images = remember { mutableStateMapOf<UInt, ByteArray>() }
     LaunchedEffect(initialImages) {
@@ -233,7 +243,25 @@ fun LocationFormScreen(
                 Text(stringResource(Res.string.assignment_articles_title), style = MaterialTheme.typography.titleMedium)
             }
 
-            if (assignmentsForLocation.isEmpty()) {
+            if (assignmentsForLocation.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = showRemoved,
+                            onCheckedChange = { showRemoved = it }
+                        )
+                        Text(
+                            text = "Show Removed",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+
+            if (filteredAssignments.isEmpty()) {
                 item {
                     Text(
                         stringResource(Res.string.assignment_none),
@@ -242,7 +270,7 @@ fun LocationFormScreen(
                     )
                 }
             } else {
-                items(assignmentsForLocation) { assignment ->
+                items(filteredAssignments) { assignment ->
                     val article = articleById(assignment.articleId)
                     if (article != null) {
                         Card(

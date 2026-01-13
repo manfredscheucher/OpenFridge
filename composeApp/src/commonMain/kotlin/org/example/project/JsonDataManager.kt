@@ -189,7 +189,7 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
             id = newId,
             articleId = articleId,
             locationId = locationId,
-            amount = 0u,
+            amount = 1u,
             addedDate = today,
             expirationDate = expirationDate
         )

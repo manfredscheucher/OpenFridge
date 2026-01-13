@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -203,7 +204,7 @@ fun LocationAssignmentsScreen(
                         }
 
                         val articleAssignments = assignmentsByArticle[article] ?: emptyList()
-                        items(articleAssignments, key = { it.id }) { assignment ->
+                        items(articleAssignments, key = { it.id.toLong() }) { assignment ->
                             val assignmentIndex = currentAssignments.indexOfFirst { it.id == assignment.id }
                             if (assignmentIndex >= 0) {
                                 AssignmentRow(
@@ -211,6 +212,12 @@ fun LocationAssignmentsScreen(
                                     onUpdate = { updated ->
                                         currentAssignments = currentAssignments.toMutableList().apply {
                                             this[assignmentIndex] = updated
+                                        }
+                                    },
+                                    onRemove = {
+                                        val today = getCurrentDateString()
+                                        currentAssignments = currentAssignments.toMutableList().apply {
+                                            this[assignmentIndex] = this[assignmentIndex].copy(removedDate = today)
                                         }
                                     },
                                     onDelete = {
@@ -247,8 +254,11 @@ fun LocationAssignmentsScreen(
 private fun AssignmentRow(
     assignment: Assignment,
     onUpdate: (Assignment) -> Unit,
+    onRemove: () -> Unit,
     onDelete: () -> Unit
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -273,8 +283,29 @@ private fun AssignmentRow(
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Delete")
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Remove") },
+                            onClick = {
+                                showMenu = false
+                                onRemove()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                showMenu = false
+                                onDelete()
+                            }
+                        )
+                    }
                 }
             }
 

@@ -11,6 +11,7 @@ data class Article(
     val abbreviation: String? = null,
     val minimumAmount: UInt = 0u,
     val defaultExpirationDays: UInt? = null,
+    val barcodes: String? = null,
     val notes: String? = null,
     val modified: String? = null,
     val added: String? = null,

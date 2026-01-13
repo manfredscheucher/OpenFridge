@@ -57,6 +57,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun LocationListScreen(
     locations: List<Location>,
+    assignments: List<Assignment>,
     imageManager: ImageManager,
     settings: Settings,
     onAddClick: () -> Unit,
@@ -69,6 +70,18 @@ fun LocationListScreen(
     }
 
     var filter by remember { mutableStateOf("") }
+
+    // Calculate total amount and earliest expiration for each location
+    val locationStats = remember(locations, assignments) {
+        locations.associate { location ->
+            val locationAssignments = assignments.filter { it.locationId == location.id && it.removedDate == null }
+            val totalAmount = locationAssignments.sumOf { it.amount }
+            val earliestExpiration = locationAssignments
+                .mapNotNull { it.expirationDate }
+                .minOrNull()
+            location.id to Pair(totalAmount, earliestExpiration)
+        }
+    }
 
     val filteredLocations = locations.filter {
         if (filter.isNotBlank()) {
@@ -176,7 +189,26 @@ fun LocationListScreen(
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(16.dp))
-                                    Text(p.name, fontWeight = FontWeight.Bold)
+                                    Column {
+                                        Text(p.name, fontWeight = FontWeight.Bold)
+
+                                        val (totalAmount, earliestExpiration) = locationStats[p.id] ?: Pair(0u, null)
+                                        if (totalAmount > 0u) {
+                                            val today = getCurrentDateString()
+                                            val isExpired = earliestExpiration != null && earliestExpiration < today
+                                            val amountText = if (earliestExpiration != null) {
+                                                val warning = if (isExpired) " ⚠️" else ""
+                                                "$totalAmount units (until $earliestExpiration)$warning"
+                                            } else {
+                                                "$totalAmount units"
+                                            }
+                                            Text(
+                                                amountText,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

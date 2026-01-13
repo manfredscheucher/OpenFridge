@@ -64,6 +64,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.exifinterface)
+            implementation(libs.mlkit.barcode.scanning)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

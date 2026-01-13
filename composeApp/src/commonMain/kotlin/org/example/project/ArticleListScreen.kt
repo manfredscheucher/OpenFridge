@@ -44,6 +44,12 @@ fun ArticleListScreen(
     var showExpiringOnly by remember { mutableStateOf(false) }
     var expiryThresholdDays by remember { mutableStateOf(7u) }
 
+    val barcodeScannerLauncher = rememberBarcodeScannerLauncher { barcode ->
+        if (barcode != null) {
+            filter = barcode
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -247,18 +253,33 @@ fun ArticleListScreen(
                     }
                 }
 
-                OutlinedTextField(
-                    value = filter,
-                    onValueChange = { filter = it },
-                    label = { Text(stringResource(Res.string.article_list_filter)) },
-                    leadingIcon = {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    },
-                    singleLine = true,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = filter,
+                        onValueChange = { filter = it },
+                        label = { Text(stringResource(Res.string.article_list_filter)) },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Search, contentDescription = "Search")
+                        },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    if (barcodeScannerLauncher != null) {
+                        Button(
+                            onClick = { barcodeScannerLauncher.launch() },
+                            modifier = Modifier.height(56.dp)
+                        ) {
+                            Text("Scan")
+                        }
+                    }
+                }
 
                 val state = rememberLazyListState()
                 LazyColumn(

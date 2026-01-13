@@ -161,8 +161,10 @@ fun LocationFormScreen(
                     Button(onClick = { imagePicker.launch() }) {
                         Text(stringResource(Res.string.location_form_select_image))
                     }
-                    Button(onClick = { cameraLauncher?.launch() }) {
-                        Text(stringResource(Res.string.location_form_take_image))
+                    cameraLauncher?.let {
+                        Button(onClick = { it.launch() }) {
+                            Text(stringResource(Res.string.location_form_take_image))
+                        }
                     }
                     if (selectedImageId != null) {
                         Button(onClick = {

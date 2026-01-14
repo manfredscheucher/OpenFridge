@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.stringResource
 import openfridge.composeapp.generated.resources.*
 
@@ -26,6 +27,7 @@ fun LocationAssignmentsScreen(
     locationId: UInt,
     allArticles: List<Article>,
     initialAssignments: List<Assignment>,
+    settings: Settings,
     onCreateNewAssignment: (articleId: UInt, locationId: UInt) -> Assignment,
     onSave: (updatedAssignments: List<Assignment>) -> Unit,
     onBack: () -> Unit
@@ -138,7 +140,7 @@ fun LocationAssignmentsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("$locationName - Assignments") },
+                title = { Text("$locationName - ${stringResource(Res.string.assignment_articles_title)}") },
                 navigationIcon = {
                     IconButton(onClick = backAction) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.common_back))
@@ -177,7 +179,7 @@ fun LocationAssignmentsScreen(
                                 onCheckedChange = { showRemoved = it }
                             )
                             Text(
-                                text = "Show Consumed",
+                                text = stringResource(Res.string.assignment_show_consumed),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                         }
@@ -210,6 +212,7 @@ fun LocationAssignmentsScreen(
                                 AssignmentRow(
                                     assignment = currentAssignments[assignmentIndex],
                                     allAssignments = currentAssignments,
+                                    settings = settings,
                                     onUpdate = { updated ->
                                         currentAssignments = currentAssignments.toMutableList().apply {
                                             this[assignmentIndex] = updated
@@ -297,6 +300,7 @@ fun LocationAssignmentsScreen(
 private fun AssignmentRow(
     assignment: Assignment,
     allAssignments: List<Assignment>,
+    settings: Settings,
     onUpdate: (Assignment) -> Unit,
     onConsume: () -> Unit,
     onSplit: () -> Unit,
@@ -326,17 +330,10 @@ private fun AssignmentRow(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    value = assignment.amount.toString(),
-                    onValueChange = { textValue ->
-                        val numericValue = textValue.toUIntOrNull()
-                        if (numericValue != null) {
-                            onUpdate(assignment.copy(amount = numericValue))
-                        }
-                    },
-                    label = { Text("Amount (units)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
+                IntegerInput(
+                    value = assignment.amount,
+                    onValueChange = { newAmount -> onUpdate(assignment.copy(amount = newAmount)) },
+                    label = stringResource(Res.string.assignment_amount_label),
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(8.dp))
@@ -350,7 +347,7 @@ private fun AssignmentRow(
                     ) {
                         if (assignment.amount > 1u) {
                             DropdownMenuItem(
-                                text = { Text("Split") },
+                                text = { Text(stringResource(Res.string.assignment_split)) },
                                 onClick = {
                                     showMenu = false
                                     onSplit()
@@ -359,7 +356,7 @@ private fun AssignmentRow(
                         }
                         if (canMerge) {
                             DropdownMenuItem(
-                                text = { Text("Merge") },
+                                text = { Text(stringResource(Res.string.assignment_merge)) },
                                 onClick = {
                                     showMenu = false
                                     onMerge()
@@ -367,14 +364,14 @@ private fun AssignmentRow(
                             )
                         }
                         DropdownMenuItem(
-                            text = { Text("Consume") },
+                            text = { Text(stringResource(Res.string.assignment_consume)) },
                             onClick = {
                                 showMenu = false
                                 onConsume()
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Delete") },
+                            text = { Text(stringResource(Res.string.common_delete)) },
                             onClick = {
                                 showMenu = false
                                 onDelete()
@@ -389,23 +386,25 @@ private fun AssignmentRow(
                 OutlinedTextField(
                     value = assignment.addedDate ?: "",
                     onValueChange = { onUpdate(assignment.copy(addedDate = it.takeIf { it.isNotBlank() })) },
-                    label = { Text("Added Date (YYYY-MM-DD)") },
+                    label = { Text(stringResource(Res.string.assignment_added_date)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = assignment.expirationDate ?: "",
-                    onValueChange = { onUpdate(assignment.copy(expirationDate = it.takeIf { it.isNotBlank() })) },
-                    label = { Text("Expiration Date (YYYY-MM-DD)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (settings.enableExpirationDates) {
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = assignment.expirationDate ?: "",
+                        onValueChange = { onUpdate(assignment.copy(expirationDate = it.takeIf { it.isNotBlank() })) },
+                        label = { Text(stringResource(Res.string.assignment_best_before_date)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = assignment.consumedDate ?: "",
                     onValueChange = { onUpdate(assignment.copy(consumedDate = it.takeIf { it.isNotBlank() })) },
-                    label = { Text("Consumed Date (YYYY-MM-DD)") },
+                    label = { Text(stringResource(Res.string.assignment_consumed_date)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

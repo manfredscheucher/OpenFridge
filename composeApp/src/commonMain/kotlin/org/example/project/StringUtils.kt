@@ -1,22 +1,29 @@
 package org.example.project
 
-import kotlin.math.abs
-import kotlin.math.roundToInt
-
-internal fun formatDecimal(value: Double): String {
-    if (value.isNaN() || value.isInfinite()) {
-        return value.toString()
+fun String.format(vararg args: Any?): String {
+    var result = this
+    args.forEach { arg ->
+        if (result.contains("%02d")) {
+            val formattedArg = arg.toString().toIntOrNull()?.let { it.toString().padStart(2, '0') } ?: arg.toString()
+            result = result.replaceFirst("%02d", formattedArg)
+        } else if (result.contains("%04d")) {
+            val formattedArg = arg.toString().toIntOrNull()?.let { it.toString().padStart(4, '0') } ?: arg.toString()
+            result = result.replaceFirst("%04d", formattedArg)
+        } else if (result.contains("%s")) {
+            result = result.replaceFirst("%s", arg.toString())
+        }
     }
-    val rounded = (value * 100).roundToInt()
-    val integerPart = rounded / 100
-    val fractionalPart = abs(rounded % 100)
-    return "$integerPart.${fractionalPart.toString().padStart(2, '0')}"
+    return result
 }
 
-internal fun commonFormatSize(size: Long): String {
-    return when {
-        size < 1024 -> "$size B"
-        size < 1024 * 1024 -> "${formatDecimal(size / 1024.0)} KB"
-        else -> "${formatDecimal(size / (1024.0 * 1024.0))} MB"
+fun commonFormatSize(size: Long): String {
+    val kb = size / 1024.0
+    val mb = kb / 1024.0
+    return if (mb >= 1.0) {
+        "${(mb * 10).toInt() / 10.0} MB"
+    } else if (kb >= 1.0) {
+        "${(kb * 10).toInt() / 10.0} KB"
+    } else {
+        "$size B"
     }
 }

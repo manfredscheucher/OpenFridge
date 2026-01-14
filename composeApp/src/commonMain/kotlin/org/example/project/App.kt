@@ -280,6 +280,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 jsonDataManager.addOrUpdateArticle(editedArticle)
                                             }
                                             reloadAllData()
+                                            navigateBack()
                                         }
                                     },
                                     onAddColor = { articleToCopy ->
@@ -395,6 +396,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                         }
                                     },
                                     imageManager = imageManager,
+                                    settings = settings,
                                     onBack = { navigateBack() },
                                     onDelete = { locationIdToDelete ->
                                         scope.launch {
@@ -437,6 +439,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 jsonDataManager.addOrUpdateLocation(editedLocation)
                                             }
                                             reloadAllData()
+                                            navigateBack()
                                         }
                                     },
                                     onNavigateToAssignments = {
@@ -460,6 +463,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 locationId = s.locationId,
                                 allArticles = articles,
                                 initialAssignments = initialAssignmentsForLocation,
+                                settings = settings,
                                 onCreateNewAssignment = { articleId, locationId ->
                                     jsonDataManager.createNewAssignment(articleId, locationId)
                                 },
@@ -483,6 +487,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 articleId = s.articleId,
                                 allLocations = locations,
                                 initialAssignments = initialAssignmentsForArticle,
+                                settings = settings,
                                 onCreateNewAssignment = { articleId, locationId ->
                                     jsonDataManager.createNewAssignment(articleId, locationId)
                                 },
@@ -521,6 +526,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 currentLocale = settings.language,
                                 currentLogLevel = settings.logLevel,
                                 backupOldFolderOnImport = settings.backupOldFolderOnImport,
+                                enableExpirationDates = settings.enableExpirationDates,
                                 fileHandler = fileHandler,
                                 onBack = { navigateBack() },
                                 onExportZip = {
@@ -591,6 +597,15 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onBackupOldFolderOnImportChange = { newBackupOldFolderOnImport ->
                                     scope.launch {
                                         val newSettings = settings.copy(backupOldFolderOnImport = newBackupOldFolderOnImport)
+                                        withContext(Dispatchers.Default) {
+                                            settingsManager.saveSettings(newSettings)
+                                        }
+                                        settings = newSettings
+                                    }
+                                },
+                                onEnableExpirationDatesChange = { newEnableExpirationDates ->
+                                    scope.launch {
+                                        val newSettings = settings.copy(enableExpirationDates = newEnableExpirationDates)
                                         withContext(Dispatchers.Default) {
                                             settingsManager.saveSettings(newSettings)
                                         }

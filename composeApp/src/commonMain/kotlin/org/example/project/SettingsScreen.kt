@@ -53,6 +53,7 @@ import openfridge.composeapp.generated.resources.language_label
 import openfridge.composeapp.generated.resources.log_level_label
 import openfridge.composeapp.generated.resources.log_level_description
 import openfridge.composeapp.generated.resources.settings
+import openfridge.composeapp.generated.resources.settings_enable_expiration_dates
 import openfridge.composeapp.generated.resources.settings_title
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -63,6 +64,7 @@ fun SettingsScreen(
     currentLocale: String,
     currentLogLevel: LogLevel,
     backupOldFolderOnImport: Boolean,
+    enableExpirationDates: Boolean,
     fileHandler: FileHandler,
     onBack: () -> Unit,
     onExportZip: () -> Unit,
@@ -70,7 +72,8 @@ fun SettingsScreen(
     onImportZip: (Any) -> Unit,
     onLocaleChange: (String) -> Unit,
     onLogLevelChange: (LogLevel) -> Unit,
-    onBackupOldFolderOnImportChange: (Boolean) -> Unit
+    onBackupOldFolderOnImportChange: (Boolean) -> Unit,
+    onEnableExpirationDatesChange: (Boolean) -> Unit
 ) {
     var showJsonFilePicker by remember { mutableStateOf(false) }
     var showZipFilePicker by remember { mutableStateOf(false) }
@@ -200,6 +203,13 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = enableExpirationDates, onCheckedChange = onEnableExpirationDatesChange)
+                    Text(stringResource(Res.string.settings_enable_expiration_dates))
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

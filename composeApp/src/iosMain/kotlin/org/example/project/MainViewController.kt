@@ -6,9 +6,14 @@ fun MainViewController() = ComposeUIViewController {
     val fileHandler = IosFileHandler()
     val jsonDataManager = JsonDataManager(fileHandler, "inventory.json")
     val imageManager = ImageManager(fileHandler)
-    val pdfManager = PdfManager(fileHandler)
     val settingsManager = JsonSettingsManager(fileHandler, "settings.json")
     val fileDownloader = FileDownloader()
 
-    App(jsonDataManager, imageManager, pdfManager, settingsManager, fileDownloader, fileHandler)
+    App(
+        jsonDataManager = jsonDataManager,
+        imageManager = imageManager,
+        fileDownloader = fileDownloader,
+        fileHandler = fileHandler,
+        settingsManager = settingsManager
+    )
 }

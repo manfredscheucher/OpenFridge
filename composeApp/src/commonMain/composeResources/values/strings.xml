@@ -85,6 +85,22 @@
     <string name="assignment_locations_title">Assignments</string>
     <string name="assignment_articles_title">Assigned Articles</string>
     <string name="assignment_none">No assignments</string>
+    <string name="assignment_units">units</string>
+    <string name="assignment_best_before">best before</string>
+    <string name="assignment_consumed">consumed</string>
+    <string name="assignment_added_date">Added on</string>
+    <string name="assignment_consumed_date">Consumed on</string>
+    <string name="assignment_best_before_date">Best before</string>
+    <string name="assignment_show_consumed">Show consumed</string>
+    <string name="assignment_consume">Consume</string>
+    <string name="assignment_split">Split</string>
+    <string name="assignment_merge">Merge</string>
+    <string name="article_minimum_amount">Minimum amount</string>
+    <string name="article_abbreviation">Abbreviation</string>
+    <string name="article_default_expiration_days">Default shelf life (days)</string>
+    <string name="barcode_lookup_opengtindb">Lookup in Open EAN/GTIN Database</string>
+    <string name="barcode_lookup_openfoodfacts">Lookup in Open Food Facts</string>
+    <string name="settings_enable_expiration_dates">Enable expiration dates</string>
 
     <!-- Statistics Screen -->
     <string name="statistics_title">Statistics</string>

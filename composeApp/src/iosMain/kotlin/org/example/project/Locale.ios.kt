@@ -1,13 +1,7 @@
 package org.example.project
 
-import platform.Foundation.NSBundle
-import platform.Foundation.NSLocale
-import platform.Foundation.NSUserDefaults
-import platform.Foundation.NSUserDefaultsDidChangeNotification
-import platform.Foundation.NSObject
-import platform.Foundation.NSNotificationCenter
-import platform.Foundation.NSNotification
-import platform.Foundation.preferredLanguages
+import platform.Foundation.*
+import platform.darwin.NSObject
 import kotlin.text.substringBefore
 
 // Schlüssel zum Speichern der ausgewählten Sprache
@@ -27,9 +21,8 @@ actual fun getCurrentLanguage(): String {
 
 actual fun setAppLanguage(language: String) {
     // Speichere die neue Sprache an erster Stelle der Prioritätenliste
-    NSUserDefaults.standardUserDefaults.setObject(kotlin.collections.listOf(language), forKey = APPLE_LANGUAGE_KEY)
+    NSUserDefaults.standardUserDefaults.setObject(listOf(language), forKey = APPLE_LANGUAGE_KEY)
 
     // WICHTIG: Die App muss neu gestartet werden, damit die Änderung wirksam wird.
     // Compose Multiplatform kann (derzeit) die Ressourcen nicht ohne Neustart komplett neu laden.
-    // Du solltest dem Nutzer eine entsprechende Nachricht anzeigen.
 }

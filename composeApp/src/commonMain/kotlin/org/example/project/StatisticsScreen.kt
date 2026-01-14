@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import openfridge.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -71,9 +70,9 @@ fun StatisticsScreen(
         filteredAssignments.forEach { assignment ->
             // Count added
             assignment.addedDate?.let { date ->
-                val yearFilter = selectedYear
-                if (yearFilter == null || date.startsWith(yearFilter)) {
-                    val key = if (yearFilter != null) date.substring(0, 7) else date.substring(0, 4)
+                val yearFilterString = selectedYear
+                if (yearFilterString == null || date.startsWith(yearFilterString)) {
+                    val key = if (yearFilterString != null) date.substring(0, 7) else date.substring(0, 4)
                     val current = stats[key] ?: MonthlyStats(key, 0u, 0u)
                     stats[key] = current.copy(added = current.added + assignment.amount)
                 }
@@ -81,9 +80,9 @@ fun StatisticsScreen(
 
             // Count consumed
             assignment.consumedDate?.let { date ->
-                val yearFilter = selectedYear
-                if (yearFilter == null || date.startsWith(yearFilter)) {
-                    val key = if (yearFilter != null) date.substring(0, 7) else date.substring(0, 4)
+                val yearFilterString = selectedYear
+                if (yearFilterString == null || date.startsWith(yearFilterString)) {
+                    val key = if (yearFilterString != null) date.substring(0, 7) else date.substring(0, 4)
                     val current = stats[key] ?: MonthlyStats(key, 0u, 0u)
                     stats[key] = current.copy(consumed = current.consumed + assignment.amount)
                 }
@@ -140,7 +139,7 @@ fun StatisticsScreen(
                         readOnly = true,
                         label = { Text("Year") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedYear) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expandedYear,
@@ -178,7 +177,7 @@ fun StatisticsScreen(
                         readOnly = true,
                         label = { Text("Location") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedLocation) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expandedLocation,
@@ -216,7 +215,7 @@ fun StatisticsScreen(
                         readOnly = true,
                         label = { Text("Article") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedArticle) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expandedArticle,
@@ -256,7 +255,7 @@ fun StatisticsScreen(
                             Text("Added", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
                             Text("Consumed", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
                         }
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                         monthlyStats.forEach { stat ->
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Text(stat.month, modifier = Modifier.weight(1f))
@@ -273,4 +272,3 @@ fun StatisticsScreen(
         }
     }
 }
-

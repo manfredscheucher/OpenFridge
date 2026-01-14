@@ -17,5 +17,6 @@ data class Settings(
     val language: String = "en",
     val statisticTimespan: String = "year",
     val logLevel: LogLevel = LogLevel.ERROR,
-    val backupOldFolderOnImport: Boolean = false
+    val backupOldFolderOnImport: Boolean = false,
+    val enableExpirationDates: Boolean = true
 )

@@ -12,9 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import openfridge.composeapp.generated.resources.*
+import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -153,7 +155,7 @@ fun ArticleFormScreen(
                             Text(stringResource(Res.string.common_delete))
                         }
                     }
-                    TextButton(onClick = { saveArticle(); onBack() }, enabled = name.isNotBlank()) {
+                    TextButton(onClick = { saveArticle() }, enabled = name.isNotBlank()) {
                         Text(stringResource(Res.string.common_save))
                     }
                 }
@@ -194,8 +196,8 @@ fun ArticleFormScreen(
                     Button(onClick = { imagePicker.launch() }) {
                         Text(stringResource(Res.string.common_select_image))
                     }
-                    cameraLauncher?.let {
-                        Button(onClick = { it.launch() }) {
+                    if (cameraLauncher != null && getPlatform().name == "Android") {
+                        Button(onClick = { cameraLauncher.launch() }) {
                             Text(stringResource(Res.string.location_form_take_image))
                         }
                     }
@@ -255,7 +257,7 @@ fun ArticleFormScreen(
                 OutlinedTextField(
                     value = abbreviation,
                     onValueChange = { abbreviation = it },
-                    label = { Text("Abbreviation") },
+                    label = { Text(stringResource(Res.string.article_abbreviation)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -272,23 +274,21 @@ fun ArticleFormScreen(
             }
 
             item {
-                OutlinedTextField(
-                    value = minimumAmount,
-                    onValueChange = { minimumAmount = it.filter { c -> c.isDigit() } },
-                    label = { Text("Minimum Amount") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                IntegerInput(
+                    value = minimumAmount.toUIntOrNull() ?: 0u,
+                    onValueChange = { minimumAmount = it.toString() },
+                    label = stringResource(Res.string.article_minimum_amount)
                 )
             }
 
-            item {
-                OutlinedTextField(
-                    value = defaultExpirationDays,
-                    onValueChange = { defaultExpirationDays = it.filter { c -> c.isDigit() } },
-                    label = { Text("Default Expiration Days") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+            if (settings.enableExpirationDates) {
+                item {
+                    IntegerInput(
+                        value = defaultExpirationDays.toUIntOrNull() ?: 0u,
+                        onValueChange = { defaultExpirationDays = it.toString() },
+                        label = stringResource(Res.string.article_default_expiration_days)
+                    )
+                }
             }
 
             item {
@@ -305,12 +305,38 @@ fun ArticleFormScreen(
                         modifier = Modifier.weight(1f)
                     )
 
-                    if (barcodeScannerLauncher != null) {
+                    if (barcodeScannerLauncher != null && getPlatform().name == "Android") {
                         Button(
                             onClick = { barcodeScannerLauncher.launch() },
                             modifier = Modifier.height(56.dp)
                         ) {
                             Text("Scan")
+                        }
+                    }
+                }
+            }
+
+            if (barcodes.isNotBlank()) {
+                item {
+                    val uriHandler = LocalUriHandler.current
+                    val barcode = barcodes.trim().split(",").firstOrNull()?.trim() ?: ""
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = {
+                                uriHandler.openUri("https://opengtindb.org/index.php?cmd=ean1&ean=$barcode&sq=1")
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(Res.string.barcode_lookup_opengtindb))
+                        }
+                        Button(
+                            onClick = {
+                                uriHandler.openUri("https://world.openfoodfacts.org/product/$barcode")
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(Res.string.barcode_lookup_openfoodfacts))
                         }
                     }
                 }
@@ -340,7 +366,7 @@ fun ArticleFormScreen(
                             onCheckedChange = { showRemoved = it }
                         )
                         Text(
-                            text = "Show Consumed",
+                            text = stringResource(Res.string.assignment_show_consumed),
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -392,12 +418,13 @@ fun ArticleFormScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(location.name, style = MaterialTheme.typography.bodyLarge)
-                                    val amountText = if (assignment.consumedDate != null) {
-                                        "${assignment.amount} units (consumed ${assignment.consumedDate})"
-                                    } else if (assignment.expirationDate != null) {
-                                        "${assignment.amount} units (expires ${assignment.expirationDate})"
-                                    } else {
-                                        "${assignment.amount} units"
+                                    val amountText = buildString {
+                                        append("${assignment.amount} ${stringResource(Res.string.assignment_units)}")
+                                        if (assignment.consumedDate != null) {
+                                            append(" (${stringResource(Res.string.assignment_consumed)} ${assignment.consumedDate})")
+                                        } else if (settings.enableExpirationDates && assignment.expirationDate != null) {
+                                            append(" (${stringResource(Res.string.assignment_best_before)} ${assignment.expirationDate})")
+                                        }
                                     }
                                     Text(amountText, style = MaterialTheme.typography.bodyMedium)
                                 }

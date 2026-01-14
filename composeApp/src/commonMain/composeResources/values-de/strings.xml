@@ -77,12 +77,28 @@
 
     <!-- Assignment -->
     <string name="assignment_section_title">Zugeordnete Artikel</string>
-    <string name="assignment_amount_label">Menge</string>
+    <string name="assignment_amount_label">Stückzahl</string>
     <string name="assignment_available">Verfügbar: %1$d</string>
     <string name="assignment_projects_title">Lagerorte</string>
     <string name="assignment_locations_title">Zuweisungen</string>
     <string name="assignment_articles_title">Zugeordnete Artikel</string>
     <string name="assignment_none">Keine Zuweisungen</string>
+    <string name="assignment_units">Einheiten</string>
+    <string name="assignment_best_before">haltbar bis</string>
+    <string name="assignment_consumed">verbraucht</string>
+    <string name="assignment_added_date">Hinzugefügt am</string>
+    <string name="assignment_consumed_date">Verbraucht am</string>
+    <string name="assignment_best_before_date">Haltbar bis</string>
+    <string name="assignment_show_consumed">Verbrauchte anzeigen</string>
+    <string name="assignment_consume">Verbrauchen</string>
+    <string name="assignment_split">Aufteilen</string>
+    <string name="assignment_merge">Vereinen</string>
+    <string name="article_minimum_amount">Mindestmenge</string>
+    <string name="article_abbreviation">Abkürzung</string>
+    <string name="article_default_expiration_days">Übliche Ablaufzeit (Tage)</string>
+    <string name="barcode_lookup_opengtindb">In Open EAN/GTIN Datenbank nachschlagen</string>
+    <string name="barcode_lookup_openfoodfacts">In Open Food Facts nachschlagen</string>
+    <string name="settings_enable_expiration_dates">Ablaufdaten aktivieren</string>
 
     <!-- Statistics Screen -->
     <string name="statistics_title">Statistik</string>

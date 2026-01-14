@@ -26,6 +26,7 @@ fun LocationFormScreen(
     assignmentsForLocation: List<Assignment>,
     articleById: (UInt) -> Article?,
     imageManager: ImageManager,
+    settings: Settings,
     onBack: () -> Unit,
     onDelete: (UInt) -> Unit,
     onSave: (Location, Map<UInt, ByteArray>) -> Unit,
@@ -130,7 +131,7 @@ fun LocationFormScreen(
                             Text(stringResource(Res.string.common_delete))
                         }
                     }
-                    TextButton(onClick = { saveLocation(); onBack() }, enabled = name.isNotBlank()) {
+                    TextButton(onClick = { saveLocation() }, enabled = name.isNotBlank()) {
                         Text(stringResource(Res.string.common_save))
                     }
                 }
@@ -171,8 +172,8 @@ fun LocationFormScreen(
                     Button(onClick = { imagePicker.launch() }) {
                         Text(stringResource(Res.string.location_form_select_image))
                     }
-                    cameraLauncher?.let {
-                        Button(onClick = { it.launch() }) {
+                    if (cameraLauncher != null && getPlatform().name == "Android") {
+                        Button(onClick = { cameraLauncher.launch() }) {
                             Text(stringResource(Res.string.location_form_take_image))
                         }
                     }
@@ -254,7 +255,7 @@ fun LocationFormScreen(
                             onCheckedChange = { showRemoved = it }
                         )
                         Text(
-                            text = "Show Consumed",
+                            text = stringResource(Res.string.assignment_show_consumed),
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -306,12 +307,13 @@ fun LocationFormScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(article.name, style = MaterialTheme.typography.bodyLarge)
-                                    val amountText = if (assignment.consumedDate != null) {
-                                        "${assignment.amount} units (consumed ${assignment.consumedDate})"
-                                    } else if (assignment.expirationDate != null) {
-                                        "${assignment.amount} units (expires ${assignment.expirationDate})"
-                                    } else {
-                                        "${assignment.amount} units"
+                                    val amountText = buildString {
+                                        append("${assignment.amount} ${stringResource(Res.string.assignment_units)}")
+                                        if (assignment.consumedDate != null) {
+                                            append(" (${stringResource(Res.string.assignment_consumed)} ${assignment.consumedDate})")
+                                        } else if (settings.enableExpirationDates && assignment.expirationDate != null) {
+                                            append(" (${stringResource(Res.string.assignment_best_before)} ${assignment.expirationDate})")
+                                        }
                                     }
                                     Text(amountText, style = MaterialTheme.typography.bodyMedium)
                                 }

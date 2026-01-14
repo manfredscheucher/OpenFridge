@@ -1,9 +1,7 @@
-
 package org.example.project
 
 import kotlinx.datetime.*
 import kotlin.time.ExperimentalTime
-
 
 @OptIn(ExperimentalTime::class)
 fun nowInstant(): Instant = kotlin.time.Clock.System.now()
@@ -16,11 +14,14 @@ fun formatTimestamp(timestamp: String): String {
     val instant = Instant.parse(timestamp)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     val date = localDateTime.date
-    val month = localDateTime.monthNumber.toString().padStart(2, '0')
+    
+    val month = localDateTime.month.number.toString().padStart(2, '0')
     val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
+    
     val hour = localDateTime.hour.toString().padStart(2, '0')
     val minute = localDateTime.minute.toString().padStart(2, '0')
     val second = localDateTime.second.toString().padStart(2, '0')
+    
     val local = "${date.year}-${month}-${day} ${hour}:${minute}:${second}"
     val utc = timestamp.substring(0, 16).replace("T", " ")
     return "$local ($utc UTC)"
@@ -40,6 +41,7 @@ fun normalizeDateString(input: String): String? {
     }
 }
 
+@OptIn(ExperimentalTime::class)
 fun getCurrentDateString(): String {
     val timestamp = getCurrentTimestamp()
     return timestamp.substring(0, 10)

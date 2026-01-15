@@ -460,6 +460,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 locationName = s.locationName,
                                 locationId = s.locationId,
                                 allArticles = articles,
+                                allLocations = locations,
                                 initialAssignments = initialAssignmentsForLocation,
                                 settings = settings,
                                 onCreateNewAssignment = { articleId, locationId ->

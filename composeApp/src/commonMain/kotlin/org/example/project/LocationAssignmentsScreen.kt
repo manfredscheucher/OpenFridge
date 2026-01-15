@@ -4,17 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.stringResource
@@ -26,6 +23,7 @@ fun LocationAssignmentsScreen(
     locationName: String,
     locationId: UInt,
     allArticles: List<Article>,
+    allLocations: List<Location>,
     initialAssignments: List<Assignment>,
     settings: Settings,
     onCreateNewAssignment: (articleId: UInt, locationId: UInt) -> Assignment,
@@ -212,6 +210,7 @@ fun LocationAssignmentsScreen(
                                 AssignmentRow(
                                     assignment = currentAssignments[assignmentIndex],
                                     allAssignments = currentAssignments,
+                                    allLocations = allLocations,
                                     settings = settings,
                                     onUpdate = { updated ->
                                         currentAssignments = currentAssignments.toMutableList().apply {
@@ -296,10 +295,12 @@ fun LocationAssignmentsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AssignmentRow(
     assignment: Assignment,
     allAssignments: List<Assignment>,
+    allLocations: List<Location>,
     settings: Settings,
     onUpdate: (Assignment) -> Unit,
     onConsume: () -> Unit,
@@ -308,6 +309,7 @@ private fun AssignmentRow(
     onDelete: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    var showLocationMenu by remember { mutableStateOf(false) }
 
     // Check if merge is possible
     val canMerge = remember(allAssignments, assignment) {
@@ -322,7 +324,7 @@ private fun AssignmentRow(
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = ColorPalette.idToColor(assignment.id))
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -381,6 +383,44 @@ private fun AssignmentRow(
                 }
             }
 
+            Spacer(Modifier.height(8.dp))
+
+            // Location Dropdown
+            val currentLocation = allLocations.find { it.id == assignment.locationId }
+            ExposedDropdownMenuBox(
+                expanded = showLocationMenu,
+                onExpandedChange = { showLocationMenu = it },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = currentLocation?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(Res.string.assignment_projects_title)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showLocationMenu) },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                    ),
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = showLocationMenu,
+                    onDismissRequest = { showLocationMenu = false }
+                ) {
+                    allLocations.forEach { location ->
+                        DropdownMenuItem(
+                            text = { Text(location.name) },
+                            onClick = {
+                                onUpdate(assignment.copy(locationId = location.id))
+                                showLocationMenu = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+                    }
+                }
+            }
+
             if (assignment.amount > 0u) {
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
@@ -388,6 +428,10 @@ private fun AssignmentRow(
                     onValueChange = { onUpdate(assignment.copy(addedDate = it.takeIf { it.isNotBlank() })) },
                     label = { Text(stringResource(Res.string.assignment_added_date)) },
                     singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 if (settings.enableExpirationDates) {
@@ -397,6 +441,10 @@ private fun AssignmentRow(
                         onValueChange = { onUpdate(assignment.copy(expirationDate = it.takeIf { it.isNotBlank() })) },
                         label = { Text(stringResource(Res.string.assignment_best_before_date)) },
                         singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -406,6 +454,10 @@ private fun AssignmentRow(
                     onValueChange = { onUpdate(assignment.copy(consumedDate = it.takeIf { it.isNotBlank() })) },
                     label = { Text(stringResource(Res.string.assignment_consumed_date)) },
                     singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }

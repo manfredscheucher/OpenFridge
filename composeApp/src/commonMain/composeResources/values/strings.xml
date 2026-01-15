@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="app_name">OpenFridge</string>
+    <string name="app_name">MisterManager</string>
 
     <!-- Home -->
-    <string name="home_title">OpenFridge</string>
+    <string name="home_title">MisterManager</string>
     <string name="home_button_articles">Articles</string>
     <string name="home_button_locations">Locations</string>
     <string name="home_button_statistics">Statistics</string>
@@ -112,7 +112,7 @@
     <!-- Info Screen -->
     <string name="info_screen_title">Info</string>
     <string name="info_how_to_help">How to Help</string>
-    <string name="info_description">OpenFridge is an open-source app to manage your inventory and locations. It provides an overview, statistics, and progress tracking. The app is still in development – feedback is very welcome!</string>
+    <string name="info_description">MisterManager is an open-source app to manage your inventory and locations. It provides an overview, statistics, and progress tracking. The app is still in development – feedback is very welcome!</string>
     <string name="info_github_button">Visit GitHub</string>
     <string name="info_copyright_notice">The source code of this app is released under the MIT License.
 © 2025 Manfred Scheucher and Helena Bergold

@@ -20,7 +20,7 @@ class JvmFileHandler : FileHandler {
 
     init {
         val home = System.getProperty("user.home")
-        baseDir = File(home, ".openfridge")
+        baseDir = File(home, ".mistermanager")
         filesDir = File(baseDir, "files")
         if (!filesDir.exists()) {
             filesDir.mkdirs()

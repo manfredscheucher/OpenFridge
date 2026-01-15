@@ -31,7 +31,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import openfridge.composeapp.generated.resources.*
+import mistermanager.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -90,7 +90,7 @@ fun HowToHelpScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
-                                onClick = { uriHandler.openUri("https://ko-fi.com/openfridge") },
+                                onClick = { uriHandler.openUri("https://ko-fi.com/mistermanager") },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(stringResource(Res.string.ko_fi_button))
@@ -134,7 +134,7 @@ fun HowToHelpScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = { uriHandler.openUri("https://github.com/manfredscheucher/OpenFridge") },
+                            onClick = { uriHandler.openUri("https://github.com/manfredscheucher/MisterManager") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(stringResource(Res.string.github_button))

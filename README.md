@@ -1,10 +1,10 @@
-# OpenFridge
+# MisterManager
 
-**OpenFridge** is an open-source inventory management system for tracking items across storage locations. It provides a clear overview of your articles, their locations, and expiration dates, along with helpful statistics like items added and consumed over time. All data is stored locally on your device, with manual export/import options.
+**MisterManager** is an open-source inventory management system for tracking items across storage locations. It provides a clear overview of your articles, their locations, and expiration dates, along with helpful statistics like items added and consumed over time. All data is stored locally on your device, with manual export/import options.
 
 As an [open-source software](https://en.wikipedia.org/wiki/Open-source_software) project released under the **MIT License**, you can explore the source code, build it yourself, and contribute. See the [LICENSE](LICENSE) file for details.
 
-OpenFridge is based on our earlier app [OpenYarnStash](https://github.com/manfredscheucher/OpenYarnStash), which was designed for yarn and knitting/crochet projects.
+MisterManager is based on our earlier app [OpenYarnStash](https://github.com/manfredscheucher/OpenYarnStash), which was designed for yarn and knitting/crochet projects.
 
 Built with [Kotlin Multiplatform](https://en.wikipedia.org/wiki/Kotlin_(programming_language)#Multiplatform) and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/), OpenFridge targets Android, iOS, Web, and desktop (Windows/macOS/Linux) from a single codebase.
 
@@ -29,8 +29,8 @@ The project is in early development and any feedback is very welcome! Since we a
 
 Also let us know if you like the app!
 
-* Leave a star on our [GitHub repository](https://github.com/manfredscheucher/OpenFridge/)
-* Use the [GitHub issue tracker](https://github.com/manfredscheucher/OpenFridge/issues) for bugs/features
+* Leave a star on our [GitHub repository](https://github.com/manfredscheucher/MisterManager/)
+* Use the [GitHub issue tracker](https://github.com/manfredscheucher/MisterManager/issues) for bugs/features
 * Join [our Discord server](https://discord.gg/g2DpAXUX) for discussions
 * Write us an [email](mailto:manfred.scheucher@proton.me)
 

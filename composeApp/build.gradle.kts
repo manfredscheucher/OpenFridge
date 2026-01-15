@@ -31,11 +31,30 @@ val generateVersionInfo = tasks.register("generateVersionInfo", GenerateVersionI
 
 kotlin {
     androidTarget()
+    /*
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+    
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "OpenFridge"
+            isStatic = true
+        }
+    }
+    */
+    
+
     jvm()
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        outputModuleName = "OpenFridge"
+        outputModuleName = "MisterManager"
         browser()
         binaries.executable()
     }
@@ -94,7 +113,7 @@ kotlin {
                 implementation(libs.pdfbox)
             }
         }
-        
+
         val wasmJsMain by getting {
             dependencies {
                 implementation(libs.kotlin.browser)
@@ -109,10 +128,10 @@ kotlin {
 }
 
 android {
-    namespace = "org.example.OpenFridge"
+    namespace = "org.example.MisterManager"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
-        applicationId = "org.example.OpenFridge"
+        applicationId = "org.example.MisterManager"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -126,10 +145,12 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "org.example.OpenFridge"
+        mainClass = "org.example.MisterManager"
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "OpenFridge"
+            packageName = "MisterManager"
+            packageVersion = project.version.toString()
         }
     }
 }
@@ -160,7 +181,7 @@ abstract class GenerateVersionInfo @Inject constructor(
                 sha = out.toString().trim()
             } catch (e: Exception) { }
         }
-        
+
         // Zeitstempel wie in DateUtils.kt (ISO 8601 UTC)
         val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         df.timeZone = TimeZone.getTimeZone("UTC")

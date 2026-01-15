@@ -22,21 +22,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import openfridge.composeapp.generated.resources.Res
-import openfridge.composeapp.generated.resources.articles
-import openfridge.composeapp.generated.resources.help
-import openfridge.composeapp.generated.resources.home_button_articles
-import openfridge.composeapp.generated.resources.home_button_locations
-import openfridge.composeapp.generated.resources.home_button_statistics
-import openfridge.composeapp.generated.resources.home_title
-import openfridge.composeapp.generated.resources.info
-import openfridge.composeapp.generated.resources.info_how_to_help
-import openfridge.composeapp.generated.resources.info_screen_title
-import openfridge.composeapp.generated.resources.locations
-import openfridge.composeapp.generated.resources.logo
-import openfridge.composeapp.generated.resources.settings
-import openfridge.composeapp.generated.resources.settings_title
-import openfridge.composeapp.generated.resources.statistics
+import mistermanager.composeapp.generated.resources.Res
+import mistermanager.composeapp.generated.resources.articles
+import mistermanager.composeapp.generated.resources.help
+import mistermanager.composeapp.generated.resources.home_button_articles
+import mistermanager.composeapp.generated.resources.home_button_locations
+import mistermanager.composeapp.generated.resources.home_button_statistics
+import mistermanager.composeapp.generated.resources.home_title
+import mistermanager.composeapp.generated.resources.info
+import mistermanager.composeapp.generated.resources.info_how_to_help
+import mistermanager.composeapp.generated.resources.info_screen_title
+import mistermanager.composeapp.generated.resources.locations
+import mistermanager.composeapp.generated.resources.logo
+import mistermanager.composeapp.generated.resources.settings
+import mistermanager.composeapp.generated.resources.settings_title
+import mistermanager.composeapp.generated.resources.statistics
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -56,7 +56,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(Res.drawable.logo),
-                        contentDescription = "OpenFridge Logo",
+                        contentDescription = "MisterManager Logo",
                         modifier = Modifier.size(45.dp)
                     )
                     Spacer(Modifier.width(12.dp))

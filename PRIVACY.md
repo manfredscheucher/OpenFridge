@@ -2,7 +2,7 @@
 
 **Last updated:** 2025-11-08
 
-OpenFridge stores **only the data you explicitly enter** and keeps it **100% on your device**.  
+MisterManager stores **only the data you explicitly enter** and keeps it **100% on your device**.  
 **No data ever leaves your device** unless you choose to export it.
 
 ## Data we store (locally only)
@@ -35,4 +35,4 @@ Nothing is uploaded or transmitted in the background.
 Your data stays on your device. Protect it with your **device security** (screen lock, OS updates, local backups).
 
 ## Contact
-Questions or requests? Contact us via email (**openfridge@proton.me**) or use the GitHub issue tracker.
+Questions or requests? Contact us via email (**manfred.scheucher@proton.me**) or use the GitHub issue tracker.

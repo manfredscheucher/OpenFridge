@@ -1,6 +1,6 @@
-# Building OpenFridge
+# Building MisterManager
 
-This guide provides instructions on how to build and run the OpenFridge project on its supported platforms: **Android**, **iOS**, **Web**, and **Desktop (JVM)**.
+This guide provides instructions on how to build and run the MisterManager project on its supported platforms: **Android**, **iOS**, **Web**, and **Desktop (JVM)**.
 
 ## Project Layout
 

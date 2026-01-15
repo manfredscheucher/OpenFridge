@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import openfridge.composeapp.generated.resources.*
+import mistermanager.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 //import java.util.Locale // TODO
 import kotlin.NoSuchElementException // Ensure this import is present
@@ -531,7 +531,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onBack = { navigateBack() },
                                 onExportZip = {
                                     scope.launch {
-                                        val exportFileName = fileHandler.createTimestampedFileName("openfridge", "zip")
+                                        val exportFileName = fileHandler.createTimestampedFileName("mistermanager", "zip")
                                         fileDownloader.download(exportFileName, fileHandler.zipFiles(), getContext())
                                     }
                                 },

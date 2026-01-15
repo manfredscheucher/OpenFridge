@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.stringResource
-import openfridge.composeapp.generated.resources.*
+import mistermanager.composeapp.generated.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

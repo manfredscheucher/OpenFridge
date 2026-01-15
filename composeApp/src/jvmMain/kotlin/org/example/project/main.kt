@@ -28,7 +28,7 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "OpenFridge",
+        title = "MisterManager",
         state = rememberWindowState(width = 1200.dp, height = 800.dp),
         onKeyEvent = {
             if (it.type == KeyEventType.KeyDown && it.key == Key.Escape) {

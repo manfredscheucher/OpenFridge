@@ -35,10 +35,10 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
-import openfridge.composeapp.generated.resources.Res
-import openfridge.composeapp.generated.resources.date_input_day
-import openfridge.composeapp.generated.resources.date_input_month
-import openfridge.composeapp.generated.resources.date_input_year
+import mistermanager.composeapp.generated.resources.Res
+import mistermanager.composeapp.generated.resources.date_input_day
+import mistermanager.composeapp.generated.resources.date_input_month
+import mistermanager.composeapp.generated.resources.date_input_year
 import org.example.project.LogLevel
 import org.example.project.Logger
 import org.example.project.getCurrentTimestamp

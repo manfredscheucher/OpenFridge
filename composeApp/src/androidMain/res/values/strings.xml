@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpenFridge</string>
+    <string name="app_name">MisterManager</string>
     <string name="import_dialog_title">Warning</string>
     <string name="import_dialog_message">The current configuration will be overwritten by the import. Are you sure you want to continue?</string>
     <string name="import_button_text">Import</string>

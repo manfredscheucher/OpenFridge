@@ -48,8 +48,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.Json
-import openfridge.composeapp.generated.resources.Res
-import openfridge.composeapp.generated.resources.*
+import mistermanager.composeapp.generated.resources.Res
+import mistermanager.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 

@@ -1,4 +1,4 @@
-rootProject.name = "OpenFridge"
+rootProject.name = "MisterManager"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

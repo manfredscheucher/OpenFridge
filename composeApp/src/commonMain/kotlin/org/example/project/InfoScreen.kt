@@ -24,14 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import openfridge.composeapp.generated.resources.Res
-import openfridge.composeapp.generated.resources.common_back
-import openfridge.composeapp.generated.resources.info
-import openfridge.composeapp.generated.resources.info_copyright_notice
-import openfridge.composeapp.generated.resources.info_description
-import openfridge.composeapp.generated.resources.info_github_button
-import openfridge.composeapp.generated.resources.info_screen_title
-import openfridge.composeapp.generated.resources.you_can_help_button
+import mistermanager.composeapp.generated.resources.Res
+import mistermanager.composeapp.generated.resources.common_back
+import mistermanager.composeapp.generated.resources.info
+import mistermanager.composeapp.generated.resources.info_copyright_notice
+import mistermanager.composeapp.generated.resources.info_description
+import mistermanager.composeapp.generated.resources.info_github_button
+import mistermanager.composeapp.generated.resources.info_screen_title
+import mistermanager.composeapp.generated.resources.you_can_help_button
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -71,7 +71,7 @@ fun InfoScreen(onBack: () -> Unit, onNavigateToHelp: () -> Unit) {
             Text(stringResource(Res.string.info_description), style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { uriHandler.openUri("https://github.com/manfredscheucher/OpenFridge") },
+                onClick = { uriHandler.openUri("https://github.com/manfredscheucher/MisterManager") },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(Res.string.info_github_button))

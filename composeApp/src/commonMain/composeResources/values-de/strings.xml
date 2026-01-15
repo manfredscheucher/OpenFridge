@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="app_name">OpenFridge</string>
+    <string name="app_name">MisterManager</string>
 
     <!-- Home -->
-    <string name="home_title">OpenFridge</string>
+    <string name="home_title">MisterManager</string>
     <string name="home_button_articles">Artikel</string>
     <string name="home_button_locations">Lagerorte</string>
     <string name="home_button_statistics">Statistik</string>
@@ -111,7 +111,7 @@
     <!-- Info Screen -->
     <string name="info_screen_title">Info</string>
     <string name="info_how_to_help">Du kannst helfen!</string>
-    <string name="info_description">OpenFridge ist eine Open-Source-App zur Verwaltung deiner Artikel und Lagerorte. Sie bietet eine Übersicht, Statistiken und Fortschrittsanzeigen. Die App befindet sich noch in der Entwicklung – Feedback ist sehr willkommen!</string>
+    <string name="info_description">MisterManager ist eine Open-Source-App zur Verwaltung deiner Artikel und Lagerorte. Sie bietet eine Übersicht, Statistiken und Fortschrittsanzeigen. Die App befindet sich noch in der Entwicklung – Feedback ist sehr willkommen!</string>
     <string name="info_github_button">GitHub besuchen</string>
     <string name="info_feedback_button">Feedback senden</string>
     <string name="info_kofi_button">Kauf uns einen Kaffee</string>

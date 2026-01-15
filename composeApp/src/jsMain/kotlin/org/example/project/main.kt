@@ -12,7 +12,7 @@ fun main() {
     val fileDownloader = FileDownloader()
 
     onWasmReady {
-        CanvasBasedWindow("OpenFridge") {
+        CanvasBasedWindow("MisterManager") {
             App(
                 jsonDataManager = jsonDataManager,
                 imageManager = imageManager,

@@ -12,7 +12,12 @@ class IosFileHandler : FileHandler {
     private fun getURL(path: String): NSURL = documentsDir.URLByAppendingPathComponent(path)!!
 
     override suspend fun readText(path: String): String {
-        return NSString.stringWithContentsOfURL(getURL(path), NSUTF8StringEncoding, null) as String? ?: ""
+        val url = getURL(path)
+        // Check if file exists before trying to read it
+        if (!fileManager.fileExistsAtPath(url.path ?: "")) {
+            return ""
+        }
+        return NSString.stringWithContentsOfURL(url, NSUTF8StringEncoding, null) as String? ?: ""
     }
 
     override suspend fun writeText(path: String, content: String) {

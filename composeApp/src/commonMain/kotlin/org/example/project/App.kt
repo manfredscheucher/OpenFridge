@@ -78,9 +78,11 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
 
     LaunchedEffect(Unit) {
         settings = withContext(Dispatchers.Default) { settingsManager.loadSettings() }
+        Logger.updateSettings(settings)
     }
 
     LaunchedEffect(settings) {
+        Logger.updateSettings(settings)
         Logger.log(LogLevel.INFO,"Settings reloaded" )
         Logger.logImportantFiles(LogLevel.DEBUG)
         setAppLanguage(settings.language)

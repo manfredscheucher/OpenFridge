@@ -32,7 +32,7 @@ fun ArticleFormScreen(
     settings: Settings,
     onBack: () -> Unit,
     onDelete: (UInt) -> Unit,
-    onSave: (Article, Map<UInt, ByteArray>) -> Unit,
+    onSave: (Article, Map<UInt, ByteArray>, (() -> Unit)?) -> Unit,
     onAddColor: (Article) -> Unit,
     onNavigateToAssignments: () -> Unit,
     onNavigateToLocation: (UInt) -> Unit
@@ -110,7 +110,7 @@ fun ArticleFormScreen(
                      notes != (initial.notes ?: "") ||
                      images.keys.toSet() != initial.imageIds.toSet()
 
-    fun saveArticle() {
+    fun saveArticle(callback: (() -> Unit)? = null) {
         val updatedArticle = initial.copy(
             name = name,
             brand = brand.takeIf { it.isNotBlank() },
@@ -122,7 +122,11 @@ fun ArticleFormScreen(
             modified = modifiedState,
             imageIds = images.keys.toList()
         )
-        onSave(updatedArticle, images.toMap())
+        onSave(updatedArticle, images.toMap(), callback)
+    }
+
+    val saveAndGoBack = {
+        saveArticle { onBack() }
     }
 
     fun confirmDiscardChanges(action: () -> Unit) {
@@ -155,7 +159,7 @@ fun ArticleFormScreen(
                             Text(stringResource(Res.string.common_delete))
                         }
                     }
-                    TextButton(onClick = { saveArticle() }, enabled = name.isNotBlank()) {
+                    TextButton(onClick = { saveAndGoBack() }, enabled = name.isNotBlank()) {
                         Text(stringResource(Res.string.common_save))
                     }
                 }
@@ -454,9 +458,8 @@ fun ArticleFormScreen(
             text = { Text(stringResource(Res.string.form_unsaved_changes_message)) },
             confirmButton = {
                 TextButton(onClick = {
-                    saveArticle()
                     showUnsavedDialog = false
-                    onConfirmUnsaved?.invoke()
+                    saveArticle { onConfirmUnsaved?.invoke() }
                 }) {
                     Text(stringResource(Res.string.common_save))
                 }

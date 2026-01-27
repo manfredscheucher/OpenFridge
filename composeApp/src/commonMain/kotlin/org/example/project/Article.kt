@@ -15,6 +15,7 @@ data class Article(
     val notes: String? = null,
     val modified: String? = null,
     val added: String? = null,
+    val deleted: Boolean? = null,
     val imageIds: List<UInt> = emptyList(),
     @Transient val imagesChanged: Boolean = false
 )

@@ -47,6 +47,10 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
     var assignments by remember { mutableStateOf(emptyList<Assignment>()) }
     var showNotImplementedDialog by remember { mutableStateOf(false) }
     var errorDialogMessage by remember { mutableStateOf<String?>(null) }
+    var isExporting by remember { mutableStateOf(false) }
+    var isImporting by remember { mutableStateOf(false) }
+    var showExportSuccessDialog by remember { mutableStateOf(false) }
+    var showImportSuccessDialog by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -258,7 +262,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                             }
                                         }
                                     },
-                                    onSave = { editedArticle, newImages ->
+                                    onSave = { editedArticle, newImages, callback ->
                                         scope.launch {
                                             val existingImageIds = existingArticle.imageIds
                                             val newImagesToUpload = newImages.filter { it.key !in existingArticle.imageIds }
@@ -282,6 +286,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 jsonDataManager.addOrUpdateArticle(editedArticle)
                                             }
                                             reloadAllData()
+                                            callback?.invoke()
                                         }
                                     },
                                     onAddColor = { articleToCopy ->
@@ -417,7 +422,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                             }
                                         }
                                     },
-                                    onSave = { editedLocation, newImages ->
+                                    onSave = { editedLocation, newImages, callback ->
                                         scope.launch {
                                             val existingImageIds = existingLocation.imageIds
                                             val newImagesToUpload = newImages.filter { it.key !in existingImageIds }
@@ -440,6 +445,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 jsonDataManager.addOrUpdateLocation(editedLocation)
                                             }
                                             reloadAllData()
+                                            callback?.invoke()
                                         }
                                     },
                                     onNavigateToAssignments = {
@@ -532,10 +538,29 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onBack = { navigateBack() },
                                 onExportZip = {
                                     scope.launch {
-                                        val exportFileName = fileHandler.createTimestampedFileName("mistermanager", "zip")
-                                        fileDownloader.download(exportFileName, fileHandler.zipFiles(), getContext())
+                                        try {
+                                            isExporting = true
+                                            val exportFileName = fileHandler.createTimestampedFileName("mistermanager", "zip")
+                                            withContext(Dispatchers.Default) {
+                                                fileDownloader.download(exportFileName, fileHandler.zipFiles(), getContext())
+                                            }
+                                            isExporting = false
+                                            showExportSuccessDialog = true
+                                        } catch (e: Exception) {
+                                            isExporting = false
+                                            errorDialogMessage = "Failed to export: ${e.message}"
+                                            scope.launch {
+                                                Logger.log(LogLevel.ERROR, "Failed to export ZIP: ${e.message}", e)
+                                            }
+                                        }
                                     }
                                 },
+                                isExporting = isExporting,
+                                isImporting = isImporting,
+                                showExportSuccessDialog = showExportSuccessDialog,
+                                showImportSuccessDialog = showImportSuccessDialog,
+                                onDismissExportSuccess = { showExportSuccessDialog = false },
+                                onDismissImportSuccess = { showImportSuccessDialog = false },
                                 onImport = { fileContent ->
                                     scope.launch {
                                         try {
@@ -556,6 +581,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onImportZip = { zipInputStream ->
                                     scope.launch {
                                         try {
+                                            isImporting = true
                                             if (settings.backupOldFolderOnImport) {
                                                 val timestamp = getCurrentTimestamp()
                                                 fileHandler.renameFilesDirectory("files_$timestamp") // backup for debugging in case of error
@@ -566,8 +592,10 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 fileHandler.unzipAndReplaceFiles(zipInputStream)
                                             }
                                             reloadAllData()
-                                            snackbarHostState.showSnackbar("ZIP import successful")
+                                            isImporting = false
+                                            showImportSuccessDialog = true
                                         } catch (e: Exception) {
+                                            isImporting = false
                                             val errorMessage = "Failed to import ZIP: ${e.message}"
                                             errorDialogMessage = errorMessage
                                             scope.launch {

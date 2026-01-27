@@ -29,7 +29,7 @@ fun LocationFormScreen(
     settings: Settings,
     onBack: () -> Unit,
     onDelete: (UInt) -> Unit,
-    onSave: (Location, Map<UInt, ByteArray>) -> Unit,
+    onSave: (Location, Map<UInt, ByteArray>, (() -> Unit)?) -> Unit,
     onNavigateToAssignments: () -> Unit,
     onNavigateToArticle: (UInt) -> Unit
 ) {
@@ -86,13 +86,17 @@ fun LocationFormScreen(
                      notes != (initial.notes ?: "") ||
                      images.keys.toSet() != initial.imageIds.toSet()
 
-    fun saveLocation() {
+    fun saveLocation(callback: (() -> Unit)? = null) {
         val updatedLocation = initial.copy(
             name = name,
             notes = notes.takeIf { it.isNotBlank() },
             imageIds = images.keys.toList()
         )
-        onSave(updatedLocation, images.toMap())
+        onSave(updatedLocation, images.toMap(), callback)
+    }
+
+    val saveAndGoBack = {
+        saveLocation { onBack() }
     }
 
     fun confirmDiscardChanges(action: () -> Unit) {
@@ -131,7 +135,7 @@ fun LocationFormScreen(
                             Text(stringResource(Res.string.common_delete))
                         }
                     }
-                    TextButton(onClick = { saveLocation() }, enabled = name.isNotBlank()) {
+                    TextButton(onClick = { saveAndGoBack() }, enabled = name.isNotBlank()) {
                         Text(stringResource(Res.string.common_save))
                     }
                 }
@@ -343,9 +347,8 @@ fun LocationFormScreen(
             text = { Text(stringResource(Res.string.form_unsaved_changes_message)) },
             confirmButton = {
                 TextButton(onClick = {
-                    saveLocation()
                     showUnsavedDialog = false
-                    onConfirmUnsaved?.invoke()
+                    saveLocation { onConfirmUnsaved?.invoke() }
                 }) {
                     Text(stringResource(Res.string.common_save))
                 }

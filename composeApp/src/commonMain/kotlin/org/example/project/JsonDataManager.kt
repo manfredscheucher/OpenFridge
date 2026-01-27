@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
+import kotlin.random.nextUInt
 
 /**
  * Repository for managing articles, locations, and their assignments from a JSON file.
@@ -23,8 +24,16 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
             try {
                 val appData = Json.decodeFromString<AppData>(content)
                 validateData(appData)
-                Logger.log(LogLevel.INFO, "Loaded data: ${appData.articles.size} articles, ${appData.locations.size} locations, ${appData.assignments.size} assignments")
-                appData
+
+                // Filter out deleted items
+                val filteredData = appData.copy(
+                    articles = appData.articles.filter { it.deleted != true }.toMutableList(),
+                    locations = appData.locations.filter { it.deleted != true }.toMutableList(),
+                    assignments = appData.assignments.filter { it.deleted != true }.toMutableList()
+                )
+
+                Logger.log(LogLevel.INFO, "Loaded data: ${filteredData.articles.size} articles, ${filteredData.locations.size} locations, ${filteredData.assignments.size} assignments (filtered out deleted items)")
+                filteredData
             } catch (e: SerializationException) {
                 Logger.log(LogLevel.ERROR, "Failed to decode JSON data in fun load: ${e.message}", e)
                 // Re-throw the exception to be handled by the caller
@@ -120,13 +129,13 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
     }
 
     // Article management functions
-    fun getArticleById(id: UInt): Article? = data.articles.firstOrNull { it.id == id }
+    fun getArticleById(id: UInt): Article? = data.articles.firstOrNull { it.id == id && it.deleted != true }
 
     fun createNewArticle(defaultName: String): Article {
         val existingIds = data.articles.map { it.id }.toSet()
         var newId: UInt
         do {
-            newId = Random.nextInt().toUInt()
+            newId = Random.nextUInt()
         } while (existingIds.contains(newId))
         val articleName = defaultName.replace("%1\$d", newId.toString())
         return Article(
@@ -153,22 +162,38 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
     }
 
     suspend fun deleteArticle(id: UInt) {
-        val article = getArticleById(id)
-        val assignmentsCount = data.assignments.count { it.articleId == id }
-        data.articles.removeAll { it.id == id }
-        data.assignments.removeAll { it.articleId == id }
-        Logger.log(LogLevel.INFO, "Deleted article: id=$id, name=${article?.name}, removed $assignmentsCount assignments")
-        save()
+        val index = data.articles.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val article = data.articles[index]
+            data.articles[index] = article.copy(
+                deleted = true,
+                modified = getCurrentTimestamp()
+            )
+
+            // Also mark related assignments as deleted
+            val timestamp = getCurrentTimestamp()
+            val assignmentsCount = data.assignments.count { it.articleId == id && it.deleted != true }
+            data.assignments.forEachIndexed { idx, assignment ->
+                if (assignment.articleId == id && assignment.deleted != true) {
+                    data.assignments[idx] = assignment.copy(
+                        deleted = true,
+                        lastModified = timestamp
+                    )
+                }
+            }
+            Logger.log(LogLevel.INFO, "Marked article as deleted: id=$id, name=${article.name}, marked $assignmentsCount assignments as deleted")
+            save()
+        }
     }
 
     // Location management functions
-    fun getLocationById(id: UInt): Location? = data.locations.firstOrNull { it.id == id }
+    fun getLocationById(id: UInt): Location? = data.locations.firstOrNull { it.id == id && it.deleted != true }
 
     fun createNewLocation(defaultName: String): Location {
         val existingIds = data.locations.map { it.id }.toSet()
         var newId: UInt
         do {
-            newId = Random.nextInt().toUInt()
+            newId = Random.nextUInt()
         } while (existingIds.contains(newId))
         val locationName = defaultName.replace("%1\$d", newId.toString())
         return Location(
@@ -194,12 +219,27 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
     }
 
     suspend fun deleteLocation(id: UInt) {
-        val location = getLocationById(id)
-        val assignmentsCount = data.assignments.count { it.locationId == id }
-        data.locations.removeAll { it.id == id }
-        data.assignments.removeAll { it.locationId == id }
-        Logger.log(LogLevel.INFO, "Deleted location: id=$id, name=${location?.name}, removed $assignmentsCount assignments")
-        save()
+        val index = data.locations.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val location = data.locations[index]
+            data.locations[index] = location.copy(
+                deleted = true
+            )
+
+            // Also mark related assignments as deleted
+            val timestamp = getCurrentTimestamp()
+            val assignmentsCount = data.assignments.count { it.locationId == id && it.deleted != true }
+            data.assignments.forEachIndexed { idx, assignment ->
+                if (assignment.locationId == id && assignment.deleted != true) {
+                    data.assignments[idx] = assignment.copy(
+                        deleted = true,
+                        lastModified = timestamp
+                    )
+                }
+            }
+            Logger.log(LogLevel.INFO, "Marked location as deleted: id=$id, name=${location.name}, marked $assignmentsCount assignments as deleted")
+            save()
+        }
     }
 
     // Assignment/Inventory management functions
@@ -207,7 +247,7 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
         val existingIds = data.assignments.map { it.id }.toSet()
         var newId: UInt
         do {
-            newId = Random.nextInt().toUInt()
+            newId = Random.nextUInt()
         } while (existingIds.contains(newId))
 
         val article = getArticleById(articleId)

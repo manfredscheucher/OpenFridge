@@ -12,5 +12,6 @@ data class Assignment(
     val addedDate: String? = null,
     val expirationDate: String? = null,
     val consumedDate: String? = null,
-    val lastModified: String? = null
+    val lastModified: String? = null,
+    val deleted: Boolean? = null
 )

@@ -8,11 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.serialization.json.Json
 import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.stringResource
 import mistermanager.composeapp.generated.resources.*
@@ -35,6 +37,7 @@ fun LocationAssignmentsScreen(
     var showRemoved by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var assignmentToDelete by remember { mutableStateOf<Int?>(null) }
+    var filter by remember { mutableStateOf("") }
 
     // Store initial consumedDate for each assignment to determine visibility
     val initialConsumedDates = remember(initialAssignments) {
@@ -45,9 +48,19 @@ fun LocationAssignmentsScreen(
         derivedStateOf { currentAssignments != initialAssignments }
     }
 
+    val filteredArticles = remember(allArticles, filter) {
+        if (filter.isBlank()) {
+            allArticles
+        } else {
+            allArticles.filter { article ->
+                Json.encodeToString(article).contains(filter, ignoreCase = true)
+            }
+        }
+    }
+
     // Group assignments by article, filtering based on initial consumedDate
-    val assignmentsByArticle = remember(currentAssignments, allArticles, showRemoved) {
-        allArticles.associate { article ->
+    val assignmentsByArticle = remember(currentAssignments, filteredArticles, showRemoved) {
+        filteredArticles.associate { article ->
             article to currentAssignments.filter { assignment ->
                 assignment.articleId == article.id &&
                 (showRemoved || initialConsumedDates[assignment.id] == null)
@@ -157,7 +170,16 @@ fun LocationAssignmentsScreen(
                 Text(stringResource(Res.string.article_list_empty))
             }
         } else {
-            Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+                OutlinedTextField(
+                    value = filter,
+                    onValueChange = { filter = it },
+                    label = { Text("Filter") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    singleLine = true
+                )
+
                 val state = rememberLazyListState()
                 LazyColumn(
                     modifier = Modifier
